@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.29.1" theme-name="Stellar" theme-version="1.29.1">
-  
+  <meta name="robots" content="noindex,follow">
   <meta name="generator" content="Hexo 7.3.0">
   <meta http-equiv='x-dns-prefetch-control' content='on' />
   
@@ -17,27 +17,23 @@
   <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000">
   <meta name="theme-color" content="#f9fafb">
   
-  <title>python中的数据容器 - AAAAl'blog</title>
+  <title>标签：ssti - AAAAl'blog</title>
 
   
-    <meta name="description" content="hello world">
-<meta property="og:type" content="article">
-<meta property="og:title" content="python中的数据容器">
-<meta property="og:url" content="https://aaaa-l.github.io/2024/12/22/python%E4%B8%AD%E7%9A%84%E6%95%B0%E6%8D%AE%E5%AE%B9%E5%99%A8/">
+    <meta name="description" content="The personal blog of a current information security student">
+<meta property="og:type" content="website">
+<meta property="og:title" content="AAAAl&#39;blog">
+<meta property="og:url" content="https://aaaa-l.github.io/tags/ssti/">
 <meta property="og:site_name" content="AAAAl&#39;blog">
-<meta property="og:description" content="hello world">
+<meta property="og:description" content="The personal blog of a current information security student">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2024-12-21T16:07:00.000Z">
-<meta property="article:modified_time" content="2024-12-22T15:17:05.090Z">
 <meta property="article:author" content="AAAAl">
-<meta property="article:tag" content="python">
-<meta property="article:tag" content="数据容器">
-<meta property="article:tag" content="基础前置知识">
-<meta name="twitter:card" content="summary_large_image">
+<meta property="article:tag" content="study,security,web,java,php,python,ctf,wp,Technology sharing">
+<meta name="twitter:card" content="summary">
   
   
   
-  <meta name="keywords" content="python,数据容器,基础前置知识">
+  <meta name="keywords" content="study,security,web,java,php,python,ctf,wp,Technology sharing">
 
   <!-- feed -->
   
@@ -58,7 +54,7 @@
 </head>
 <body><div class="sitebg"><div class="siteblur"></div></div>
 
-<div class="l_body s:aa content tech" id="start" layout="post" ><aside class="l_left"><div class="leftbar-container">
+<div class="l_body s:aa index tech" id="start" layout="undefined" ><aside class="l_left"><div class="leftbar-container">
 
 
 <header class="header"><div class="logo-wrap"><a class="avatar" href="/about/"><div class="bg" style="opacity:0;background-image:url(https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/rainbow64@3x.webp);"></div><img no-lazy class="avatar" src="/assets/images/avatar.jpg" onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="title" href="/"><div class="main" ff="title">AAAAl'blog</div></a></div></header>
@@ -70,130 +66,25 @@
 <nav class="menu dis-select"><a class="nav-item" title="首页" href="/" style="color:#1BCDFC"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M5.879 2.879C5 3.757 5 5.172 5 8v8c0 2.828 0 4.243.879 5.121C6.757 22 8.172 22 11 22h2c2.828 0 4.243 0 5.121-.879C19 20.243 19 18.828 19 16V8c0-2.828 0-4.243-.879-5.121C17.243 2 15.828 2 13 2h-2c-2.828 0-4.243 0-5.121.879M8.25 17a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1-.75-.75M9 12.25a.75.75 0 0 0 0 1.5h6a.75.75 0 0 0 0-1.5zM8.25 9A.75.75 0 0 1 9 8.25h6a.75.75 0 0 1 0 1.5H9A.75.75 0 0 1 8.25 9" clip-rule="evenodd"/><path fill="currentColor" d="M5.235 4.058C5 4.941 5 6.177 5 8v8c0 1.823 0 3.058.235 3.942L5 19.924c-.975-.096-1.631-.313-2.121-.803C2 18.243 2 16.828 2 14v-4c0-2.829 0-4.243.879-5.121c.49-.49 1.146-.707 2.121-.803zm13.53 15.884C19 19.058 19 17.822 19 16V8c0-1.823 0-3.059-.235-3.942l.235.018c.975.096 1.631.313 2.121.803C22 5.757 22 7.17 22 9.999v4c0 2.83 0 4.243-.879 5.122c-.49.49-1.146.707-2.121.803z" opacity=".5"/></svg></a><a class="nav-item" title="分类" href="/categories/" style="color:#3DC550"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M14.25 4.48v3.057c0 .111 0 .27.02.406a.936.936 0 0 0 .445.683a.96.96 0 0 0 .783.072c.13-.04.272-.108.378-.159L17 8.005l1.124.534c.106.05.248.119.378.16a.958.958 0 0 0 .783-.073a.936.936 0 0 0 .444-.683c.021-.136.021-.295.021-.406V3.031c.113-.005.224-.01.332-.013C21.154 2.98 22 3.86 22 4.933v11.21c0 1.112-.906 2.01-2.015 2.08c-.97.06-2.108.179-2.985.41c-1.082.286-1.99 1.068-3.373 1.436c-.626.167-1.324.257-1.627.323V5.174c.32-.079 1.382-.203 1.674-.371c.184-.107.377-.216.576-.323m5.478 8.338a.75.75 0 0 1-.546.91l-4 1a.75.75 0 0 1-.364-1.456l4-1a.75.75 0 0 1 .91.546" clip-rule="evenodd"/><path fill="currentColor" d="M18.25 3.151c-.62.073-1.23.18-1.75.336a8.2 8.2 0 0 0-.75.27v3.182l.75-.356l.008-.005a1.13 1.13 0 0 1 .492-.13c.047 0 .094.004.138.01c.175.029.315.1.354.12l.009.005l.749.356V3.647z"/><path fill="currentColor" d="M12 5.214c-.334-.064-1.057-.161-1.718-.339C8.938 4.515 8.05 3.765 7 3.487c-.887-.234-2.041-.352-3.018-.412C2.886 3.007 2 3.9 2 4.998v11.146c0 1.11.906 2.01 2.015 2.079c.97.06 2.108.179 2.985.41c.486.129 1.216.431 1.873.726c1.005.451 2.052.797 3.127 1.034z" opacity=".5"/><path fill="currentColor" d="M4.273 12.818a.75.75 0 0 1 .91-.545l4 1a.75.75 0 1 1-.365 1.455l-4-1a.75.75 0 0 1-.545-.91m.909-4.545a.75.75 0 1 0-.364 1.455l4 1a.75.75 0 0 0 .364-1.455z"/></svg></a><a class="nav-item" title="关于" href="/about/" style="color:#FA6400"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M20 12a8 8 0 1 1-16 0a8 8 0 0 1 16 0" opacity=".5"/><path fill="currentColor" d="M17.712 5.453c1.047-.193 2.006-.259 2.797-.152c.77.103 1.536.393 1.956 1.064c.446.714.312 1.542-.012 2.258c-.33.728-.918 1.499-1.672 2.268c-1.516 1.547-3.836 3.226-6.597 4.697c-2.763 1.472-5.495 2.484-7.694 2.92c-1.095.217-2.098.299-2.923.201c-.8-.095-1.6-.383-2.032-1.075c-.47-.752-.296-1.63.07-2.379c.375-.768 1.032-1.586 1.872-2.403L4 12.416c0 .219.083.71.168 1.146c.045.23.09.444.123.596c-.652.666-1.098 1.263-1.339 1.756c-.277.567-.208.825-.145.925c.072.116.305.305.937.38c.609.073 1.44.018 2.455-.183c2.02-.4 4.613-1.351 7.28-2.772c2.667-1.42 4.85-3.015 6.23-4.423c.694-.707 1.15-1.334 1.377-1.836c.233-.515.167-.75.107-.844c-.07-.112-.289-.294-.883-.374c-.542-.072-1.272-.041-2.163.112L16.87 5.656c.338-.101.658-.17.842-.203"/></svg></a><a class="nav-item" title="更多" href="/more/" style="color:#F44336"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="m13.629 20.472l-.542.916c-.483.816-1.69.816-2.174 0l-.542-.916c-.42-.71-.63-1.066-.968-1.262c-.338-.197-.763-.204-1.613-.219c-1.256-.021-2.043-.098-2.703-.372a5 5 0 0 1-2.706-2.706C2 14.995 2 13.83 2 11.5v-1c0-3.273 0-4.91.737-6.112a5 5 0 0 1 1.65-1.651C5.59 2 7.228 2 10.5 2h3c3.273 0 4.91 0 6.113.737a5 5 0 0 1 1.65 1.65C22 5.59 22 7.228 22 10.5v1c0 2.33 0 3.495-.38 4.413a5 5 0 0 1-2.707 2.706c-.66.274-1.447.35-2.703.372c-.85.015-1.275.022-1.613.219c-.338.196-.548.551-.968 1.262" opacity=".5"/><path fill="currentColor" d="M10.99 14.308c-1.327-.978-3.49-2.84-3.49-4.593c0-2.677 2.475-3.677 4.5-1.609c2.025-2.068 4.5-1.068 4.5 1.609c0 1.752-2.163 3.615-3.49 4.593c-.454.335-.681.502-1.01.502c-.329 0-.556-.167-1.01-.502"/></svg></a></nav>
 </div>
 <div class="widgets">
-
+<widget class="widget-wrapper markdown"><div class="widget-header dis-select"><span class="name">哈喽~ 欢迎光临本博客：</span></div><div class="widget-body fs14"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://api.mtyqx.cn/tapi/random.php" fancybox="true">
+</div></widget>
 
 <widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/2024/12/23/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E5%89%8D%E7%BD%AE%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"><span class="title">flask中的ssti注入-前置基础知识</span></a><a class="item title" href="/2024/12/22/python%E4%B8%AD%E7%9A%84%E6%95%B0%E6%8D%AE%E5%AE%B9%E5%99%A8/"><span class="title">python中的数据容器</span></a></div></widget>
 </div>
 <footer class="footer dis-select"><div class="social-wrap"><a class="social" href="https://github.com/AAAA-l" target="_blank" rel="external nofollow noopener noreferrer"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/08a41b181ce68.svg"></a></div></footer>
 </div></aside><div class="l_main" id="main">
 
+<header class="header mobile-only"><div class="logo-wrap"><a class="avatar" href="/about/"><div class="bg" style="opacity:0;background-image:url(https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/rainbow64@3x.webp);"></div><img no-lazy class="avatar" src="/assets/images/avatar.jpg" onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="title" href="/"><div class="main" ff="title">AAAAl'blog</div></a></div></header>
+
+ 
 
 
 
 
-<div class="article banner top"><img class="bg lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/assets/images/avatar.jpg">
-  <div class="content">
-    <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
-<span class="sep"></span><a class="cap breadcrumb" href="/">文章</a><span class="sep"></span><a class="cap breadcrumb-link" href="/categories/python/">python</a> <span class="sep"></span> <a class="cap breadcrumb-link" href="/categories/python/ssti/">ssti</a></div>
-<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-12-21T16:07:00.000Z">2024-12-22</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-12-22T15:17:05.090Z">2024-12-22</time></span></div></div></div>
-    
-  </div>
-  </div><article class="md-text content"><p>[TOC]</p>
-<p>在进行ssti注入的时候，我们的payload中会涉及到python中相关的数据容器，熟悉掌握这些数据容器，才能避免我们在语法上面出现错误和借助数据容器的一些特性进行绕过。</p>
-<span id="more"></span>
-
-<p>python中的数据容器就是可以一次性储存多个数据的一种数据结构，他和一般语言中的数组不一样，他可以储存<strong>不同类型</strong>的数据在同一个容器当中。而且他<strong>支持嵌套储存</strong>，也就是他的储存的元素本身也可以是一个数据容器。而且python中的数据容器有很多种类型，支持不同场景下面的应用，还有绝大多数的数据容器储存<strong>大小是动态</strong>的。python中所有的数据容器本质上都是通过一个类定义的，所以我们在定义对应的数据容器的时候都可以通过创建一个实例的方法来定义。</p>
-<h5 id="列表（list"><a href="#列表（list" class="headerlink" title="列表（list)"></a>列表（list)</h5><h6 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h6><p><strong>列表的定义：</strong></p>
-<p><code>lis = [[1,2],2,3]</code></p>
-<p>列表是直接使用[]进行定义。</p>
-<p><strong>列表中对应元素的访问：</strong></p>
-<p><code>lis[1] #2</code>，<code>lis[-1] #3</code>，<code>lis[0][0] #1</code></p>
-<p>我们对列表中的元素进行访问的时候，可以从左向右进行访问，这个时候索引就是<strong>从0开始</strong>，我们也可以选择从右向左访问，这个时候索引就是<strong>从-1开始</strong>；如果是嵌套进行储存的话，我们直接递归进行访问就可以了。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">lis = [1,2,3]<br>print(lis[:2]) # 1,2 取出前两个元素<br>print(lis[1:2]) #2 取出第二个元素<br>print(lis[::2]) # 1,3 从第一个元素开始取，步长为2<br># 这里需要注意的是，我们使用切片获取序列的时候，是包含起始下标，不包含结束下标<br># 还有如果步长是负数的话，这个时候就是从后往前取，这个时候应该是起始下标大于结束下标<br></code></pre></td></tr></table></figure>
-
-<p>我们还可以使用切片的方式来获取列表中的元素。</p>
-<p><strong>列表的特点：</strong></p>
-<p>列表中储存的数据上限是2^63-1，可以容纳不同类型的数据，是有序存储的（有下标序号在），允许重复数据存在，<strong>可以修改</strong>。</p>
-<h6 id="列表中常用的方法"><a href="#列表中常用的方法" class="headerlink" title="列表中常用的方法"></a>列表中常用的方法</h6><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">列表.append(元素) 在末尾追加一个元素<br>列表.extend(容器) 将数据容器中的内容依次取出，追加到列表尾部<br>列表.insert(下标，元素) 在指定下标处，插入指定的元素。超出索引的时候，默认追加到末尾<br>del 列表[下标] 删除列表指定下标元素<br>列表.pop(下标) 删除列表指定下标元素，并返回删除元素的值<br>列表.remove(元素) 从前向后，删除此元素第一个匹配项<br>列表.clear() 清空列表<br>列表.count(元素) 统计此元素在列表中出现的次数<br>列表.index(元素) 查找指定元素在列表的下标<br>len(列表) 统计容器内有多少元素<br></code></pre></td></tr></table></figure>
-
-<h5 id="元组（tuple"><a href="#元组（tuple" class="headerlink" title="元组（tuple)"></a>元组（tuple)</h5><h6 id="基础知识-1"><a href="#基础知识-1" class="headerlink" title="基础知识"></a>基础知识</h6><p><strong>元组的的定义：</strong></p>
-<p><code>tup = (1,2,3)</code></p>
-<p>元组是直接使用()进行定义的。</p>
-<p><code>tup = (&quot;hello&quot;)</code>，<code>tup = (&quot;hello&quot;,)</code></p>
-<p>在这里前面一个的数据类型是字符串，后面一个才是元组。所以在定义元组的时候，如果只定义了一个元素，我们需要在后面加上<code>,</code>。</p>
-<p><strong>元组中定义元素的访问：</strong></p>
-<p>和列表一样。</p>
-<p><strong>元组的特点：</strong></p>
-<p>和列表相比，就是<strong>元组中的元素不可以进行修改</strong>。<strong>但是如果元组中嵌套定义了其他数据容器，如列表，那么这个列表中的元素是可以进行修改的。</strong></p>
-<h6 id="元组中常用的方法"><a href="#元组中常用的方法" class="headerlink" title="元组中常用的方法"></a>元组中常用的方法</h6><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">index count len<br>具体参考列表<br></code></pre></td></tr></table></figure>
-
-<h5 id="字符串（str"><a href="#字符串（str" class="headerlink" title="字符串（str)"></a>字符串（str)</h5><h6 id="基础知识-2"><a href="#基础知识-2" class="headerlink" title="基础知识"></a>基础知识</h6><p>字符串可以看成是储存字符的数据容器。</p>
-<p><strong>字符串的定义：</strong></p>
-<p>str &#x3D; “you and me”</p>
-<p>直接使用引号定义定义即可</p>
-<p><strong>字符串中的字符索引：</strong></p>
-<p>和列表一样</p>
-<p><strong>字符串的特点：</strong></p>
-<p>和列表相比，字符串的长度任意（取决于内存大小），只能存储字符，<strong>不可以进行修改</strong>。</p>
-<h6 id="字符串中常用的方法："><a href="#字符串中常用的方法：" class="headerlink" title="字符串中常用的方法："></a>字符串中常用的方法：</h6><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">字符串.index(子字符串) 返回子字符串在字符串中的起始位置，如果有多个子字符串，返回第一个的结果，后面还有两个参数可以分别指定查询的起始位置和结束位置<br>字符串.replace(旧子字符串，新子字符串) 将字符串中旧的子字符串替换为新的子字符串，默认是替换所有，后面还有一个参数可以指定替换的次数，注意这里本质上是得到一个新的字符串，原因的字符串并不会被修改<br>字符串.spilt(标识) 将字符串按标识进行分割，如按照空格进行分割等，分割完成之后会返回一个列表，后面还有一个参数，可以选择分割的次数，默认是全分割，这里原字符串依旧是没有改变<br>字符串.strip(标识) 将字符串中首尾的标识去掉，如果存在的话；如果什么参数都没有传入的话，默认是去除首尾的空格。这里需要注意的是，如果我们传入的是12，这里进行去除的时候是按照单个字符分别来的，所以这里如果首尾存在21的话也是会被去除<br>count 参考列表<br>len 参考列表<br></code></pre></td></tr></table></figure>
-
-<h5 id="集合（set"><a href="#集合（set" class="headerlink" title="集合（set)"></a>集合（set)</h5><h6 id="基础知识-3"><a href="#基础知识-3" class="headerlink" title="基础知识"></a>基础知识</h6><p><code>s = &#123;1,2,3&#125;</code></p>
-<p>集合是直接使用{}进行定义的。</p>
-<p><strong>获取集合中的元素：</strong></p>
-<p>不能使用下标索引获取集合中的元素。</p>
-<p><strong>遍历获取或者使用pop方法进行获取。</strong>或者将集合转换为元组或者列表再进行获取。</p>
-<p><strong>集合的特点：</strong></p>
-<p>和列表相比，集合是<strong>无序的</strong>，所以集合<strong>不能使用下标去进行索引</strong>，还有集合中<strong>不能有重复元素</strong>；和元组相比，集合还有一特点就是<strong>可以进行修改</strong>。</p>
-<h6 id="集合中常用的方法"><a href="#集合中常用的方法" class="headerlink" title="集合中常用的方法"></a>集合中常用的方法</h6><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">集合.add(元素) 集合内添加一个指定的元素<br>集合.remove(元素) 移除集合内指定的元素<br>集合.pop(元素) 从集合内随机取出一个元素<br>集合.clear() 将集合清空<br>集合1.difference(集合2) 得到一个新集合，内含两个集合的差集，原有两个集合的内容不变<br>集合1.difference_update(集合2) 在集合1中，删除两个集合中都存在的元素<br>集合1.union(集合2) 得到一个新集合，内含两个集合的并集，原有两个集合的内容不变<br>len(集合) 得到集合内元素的个数<br></code></pre></td></tr></table></figure>
-
-<h5 id="字典（dict）"><a href="#字典（dict）" class="headerlink" title="字典（dict）"></a>字典（dict）</h5><h6 id="基础知识-4"><a href="#基础知识-4" class="headerlink" title="基础知识"></a>基础知识</h6><p><strong>字典的定义：</strong></p>
-<p><code>dic = &#123;key1:value1,key2:value2&#125;</code></p>
-<p>字典也是使用{}进行定义的，只不过字典中的元素是以键值对的方式储存。</p>
-<p><strong>字典中元素的定义：</strong></p>
-<p>不能使用下标索引获取集合中元素。</p>
-<p>我们是通过键来获取对应的值。</p>
-<p><strong>字典的特点</strong>：</p>
-<p>字典中的键和值可以是任意数据类型（键不能是字典），字典中没有重复键名（如果重复定义，后面值的会覆盖掉前面的值），字典是通过键值对的方式来进行访问，而不是下标索引，字典是可以进行修改的。</p>
-<h6 id="字典中常用的方法"><a href="#字典中常用的方法" class="headerlink" title="字典中常用的方法"></a>字典中常用的方法</h6><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">字典.keys() 取出字典中所有的key，一般是使用来进行遍历<br>pop clear len 参考前面其他数据容器相同名称的方法<br></code></pre></td></tr></table></figure>
-
-<h5 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h5><ul>
-<li><p>是否支持下标索引</p>
-<ul>
-<li>支持：列表，元组，字符串 — 序列数据</li>
-<li>不支持：集合，字典 — 非序列数据</li>
-</ul>
-</li>
-<li><p>是否支持重复元素：</p>
-<ul>
-<li>支持：列表，元组，字符串 — 序列数据</li>
-<li>不支持：集合，字典 — 非序列数据</li>
-</ul>
-</li>
-<li><p>是否可以修改：</p>
-<ul>
-<li>支持：列表，集合，字典</li>
-<li>不支持：元组，字符串</li>
-</ul>
-</li>
-<li><p>是否有序：</p>
-<ul>
-<li>是：列表，元组，字符串</li>
-<li>不是：集合，字典</li>
-</ul>
-</li>
-<li><p>支持数据类型：</p>
-<p>字符串只支持字符，字典中的键和值可以是任意数据类型（键不能是字典），其他的支持任意数据类型。</p>
-</li>
-</ul>
-
-<div class="article-footer fs14">
-    <section id="license">
-      <div class="header"><span>许可协议</span></div>
-      <div class="body"><p>本文采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">署名-非商业性使用-相同方式共享 4.0 国际</a> 许可协议，转载请注明出处。</p>
-</div>
-    </section>
-    </div>
-</article>
-<div class="related-wrap" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">较新文章</div><a href="/2024/12/23/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E5%89%8D%E7%BD%AE%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">flask中的ssti注入-前置基础知识</a></div><div class="item" id="next"></div></section></div>
-
-<div class="related-wrap" id="related-posts">
-    <section class='header'>
-      <div class='title cap theme'>您可能感兴趣的文章</div>
-    </section>
-    <section class='body'>
-    <div class="related-posts"><a class="item" href="\2024\12\23\flask中的ssti注入-前置基础知识\" title="flask中的ssti注入-前置基础知识"><span class="title">flask中的ssti注入-前置基础知识</span><span class="excerpt">ssti注入的前置基础知识</span></a></div></section></div>
-
-
+<div class="navbar top"><nav class="post"><a href="/">近期发布</a><a href="/categories">分类</a><a class="active" href="/tags">标签：ssti</a><a href="/archives">归档</a></nav></div>
+<div class="post-list post"><a class="post-card post photo" href="/2024/12/23/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E5%89%8D%E7%BD%AE%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">
+<div class="cover"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/assets/images/flask_ssti.jpg"/><div class="cover-info"style="color:red"position="bottom"><div class="title">ssti注入</div><div class="cap">前置基础知识</div></div></div>
+</a></div>
 
 
 <footer class="page-footer footnote"><hr><div class="text"><center>
@@ -253,14 +144,7 @@
 </center>
 </div></footer>
 <div class="main-mask" onclick="sidebar.dismiss()"></div></div><aside class="l_right">
-<div class="widgets">
-
-
-
-<widget class="widget-wrapper toc" id="data-toc" collapse="false"><div class="widget-header dis-select"><span class="name">本文目录</span><a class="cap-action" onclick="sidebar.toggleTOC()" ><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></a></div><div class="widget-body"><ol class="toc"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%88%97%E8%A1%A8%EF%BC%88list"><span class="toc-text">列表（list)</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%85%83%E7%BB%84%EF%BC%88tuple"><span class="toc-text">元组（tuple)</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%AD%97%E7%AC%A6%E4%B8%B2%EF%BC%88str"><span class="toc-text">字符串（str)</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%9B%86%E5%90%88%EF%BC%88set"><span class="toc-text">集合（set)</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%AD%97%E5%85%B8%EF%BC%88dict%EF%BC%89"><span class="toc-text">字典（dict）</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li></ol></div><div class="widget-footer">
-
-<a class="top" onclick="util.scrollTop()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2c4.714 0 7.071 0 8.535 1.464C22 4.93 22 7.286 22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12Z"/><path stroke-linecap="round" stroke-linejoin="round" d="m9 15.5l3-3l3 3m-6-4l3-3l3 3"/></g></svg><span>回到顶部</span></a></div></widget>
-</div></aside><div class='float-panel blur'>
+</aside><div class='float-panel blur'>
   <button type='button' style='display:none' class='laptop-only rightbar-toggle mobile' onclick='sidebar.rightbar()'>
     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
   </button>
