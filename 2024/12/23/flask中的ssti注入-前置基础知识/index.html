@@ -28,14 +28,15 @@
 <meta property="og:description" content="[TOC] 摘要为什么要写这一篇文章呢？一方面是是为了防止手注时出现错误不知如何进行更改，另一方面是后面讲得所有的利用和绕过都是在此基础上，只有对这方面有所了解，你才能理解后面的payload。（会讲得比较细致，适合零基础的小白）。不过为了尽可能精炼一点，这里对一些基础的概念不会进行讲解。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://aaaa-l.github.io/2024/12/23/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E5%89%8D%E7%BD%AE%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/render_template.jpg">
+<meta property="og:image" content="https://aaaa-l.github.io/2024/12/23/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E5%89%8D%E7%BD%AE%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/render_template_string.jpg">
 <meta property="og:image" content="https://aaaa-l.github.io/2024/12/23/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E5%89%8D%E7%BD%AE%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/globals.jpg">
 <meta property="article:published_time" content="2024-12-23T14:56:58.000Z">
-<meta property="article:modified_time" content="2024-12-26T05:15:40.473Z">
+<meta property="article:modified_time" content="2024-12-26T05:23:20.709Z">
 <meta property="article:author" content="AAAAl">
-<meta property="article:tag" content="数据容器">
 <meta property="article:tag" content="python">
 <meta property="article:tag" content="ssti">
 <meta property="article:tag" content="flask">
+<meta property="article:tag" content="数据容器">
 <meta property="article:tag" content="魔术方法">
 <meta property="article:tag" content="魔术属性">
 <meta property="article:tag" content="Jinja2模板引擎">
@@ -44,7 +45,7 @@
   
   
   
-  <meta name="keywords" content="数据容器,python,ssti,flask,魔术方法,魔术属性,Jinja2模板引擎">
+  <meta name="keywords" content="python,ssti,flask,数据容器,魔术方法,魔术属性,Jinja2模板引擎">
 
   <!-- feed -->
   
@@ -92,7 +93,7 @@
   <div class="content">
     <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
 <span class="sep"></span><a class="cap breadcrumb" href="/">文章</a><span class="sep"></span><a class="cap breadcrumb-link" href="/categories/python/">python</a> <span class="sep"></span> <a class="cap breadcrumb-link" href="/categories/python/ssti/">ssti</a> <span class="sep"></span> <a class="cap breadcrumb-link" href="/categories/python/ssti/%E5%89%8D%E7%BD%AE%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">前置基础知识</a></div>
-<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-12-23T14:56:58.000Z">2024-12-23</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-12-26T05:15:40.473Z">2024-12-26</time></span></div></div></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-12-23T14:56:58.000Z">2024-12-23</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-12-26T05:23:20.709Z">2024-12-26</time></span></div></div></div>
     
   </div>
   </div><article class="md-text content"><p>[TOC]</p>
@@ -136,7 +137,7 @@
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">hello, &lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;!<br>welcome to ().__class__! <br></code></pre></td></tr></table></figure>
 
 <p>可以看到两个都没有解析，都是直接输出的，因为我们已经分析过了render_template函数调到最后其实调的就是root_render_func函数，而这个函数是动态生成的，他会进行安全处理，所以我们的xss攻击和ssti注入失效了。</p>
-<h3 id="render-template-string"><a href="#render-template-string" class="headerlink" title="render_template_string"></a>render_template_string</h3>
+<h3 id="render-template-string"><a href="#render-template-string" class="headerlink" title="render_template_string"></a>render_template_string</h3><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/12/23/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E5%89%8D%E7%BD%AE%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/render_template_string.jpg" class="lazy" title="render_template_string函数源码">
 
 <p>可以看到，这个函数接收两个参数，一个是整个模板源代码组成的字符串，一个是可变参数，后面进行模板渲染的，最后也是调用了_render函数。所以这个函数正常使用也是安全的。</p>
 <p><strong>我们来举一个例子测试一下。</strong></p>
@@ -190,7 +191,7 @@
 <li>当我们在类中重写魔术方法，这个时候的魔术方法就是由python语言实现的，魔术方法的类型就会变成<code>&lt;class &#39;function&#39;&gt;</code>，我们就可以借助魔术方法访问<code>__globals__</code>属性。因为<code>__init__</code>这个魔术方法会在创建对象实例时进行初始化，所以一般类中都会重写这个魔术方法，这也就是为什么很多<code>payload</code>都是使用了<code>__init__</code>。但是我们要知道使用其他方法也是可以的。</li>
 <li>python中的数据容器本身都是一个类，而且我们可以分别使用各种符号去直接创建对应数据容器的实例对象，上面的()代表的就是一个元组的实例对象，只不过这个元组为空，没有储存任何数据。</li>
 </ul>
-<h2 id="payload解析"><a href="#payload解析" class="headerlink" title="payload解析"></a>payload解析</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">().__class__    //获取这个实例对象的所属类，也就是元组 &lt;class &#x27;tuple&#x27;&gt;<br>().__class__.__base__   //元组没有指定继承类，所以是直接继承object，这里就会返回&lt;class &#x27;object&#x27;&gt;<br>().__class__.__base__.__subclasses__()   //返回所有直接继承object的子类<br>().__class__.__base__.__subclasses__()[412]   //找到重写了__init__方法的子类<br>__init__.__globals__.__builtins__    //获取python中的内置模块<br>__import__(&#x27;os&#x27;)   //通过内置模块中的内置方法__import__导入模块os，os中含有可以执行系统命令的popen<br><br>//到这一步我们就完成了前面说的想要在模板环境中使用对应的方法，就要找到对应方法的定义<br><br>popen(&#x27;whoami&#x27;).read()   //执行系统命令，因为返回的结果包装成一个文件对象，所以要调read()来获取结果<br></code></pre></td></tr></table></figure>
+<h2 id="payload解析"><a href="#payload解析" class="headerlink" title="payload解析"></a>payload解析</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">().__class__    //获取这个实例对象的所属类，也就是元组 &lt;class &#x27;tuple&#x27;&gt;<br>().__class__.__base__   //元组没有指定继承类，所以是直接继承object，这里就会返回&lt;class &#x27;object&#x27;&gt;<br>().__class__.__base__.__subclasses__()   //返回所有直接继承object的子类<br>().__class__.__base__.__subclasses__()[412]   //找到重写了__init__方法的子类<br>__init__.__globals__.__builtins__    //获取python中的内置模块<br>__import__(&#x27;os&#x27;)   //通过内置模块中的内置方法__import__导入模块os，os中含有可以执行系统命令的popen<br><br>//到这一步我们就完成了前面说的想要在模板环境中使用对应的函数，就要找到对应函数的定义<br><br>popen(&#x27;whoami&#x27;).read()   //执行系统命令，因为返回的结果包装成一个文件对象，所以要调read()来获取结果<br></code></pre></td></tr></table></figure>
 
 <h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>在一开始写这一篇文章的时候，我本来还想着介绍一下python中的数据容器，因为ssti手注出现错误时一般和这里有关，还有我们的一些绕过也和他有关。但是想着这里毕竟不是重点，再加上内容较为基础，就不再写了。</p>
 <p>其实这篇文章讲得还是比较浅，很多东西只是点到为止，像<code>root_render_func</code>这个函数的python代码到底是怎么生成的以及Jinja2中的沙箱机制的实现等，因为本人也不是很了解，所以没有进行深入。不过从了解和入门ssti注入漏洞这个角度来看，这篇文章是够了。</p>
