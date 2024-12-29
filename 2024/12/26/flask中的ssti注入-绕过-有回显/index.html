@@ -20,12 +20,12 @@
   <title>flask中的ssti注入-绕过-有回显 - AAAAl'blog</title>
 
   
-    <meta name="description" content="[TOC] 摘要这篇文章本身主要是讲解有回显情况下面下针对ssti的过滤如何进行绕过（本篇文章的测试环境是python3.9.13）。">
+    <meta name="description" content="[TOC] 摘要这篇文章本身主要是讲解有回显情况下面针对ssti的过滤如何进行绕过（本篇文章的测试环境是python3.9.13）。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="flask中的ssti注入-绕过-有回显">
 <meta property="og:url" content="https://aaaa-l.github.io/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87-%E6%9C%89%E5%9B%9E%E6%98%BE/">
 <meta property="og:site_name" content="AAAAl&#39;blog">
-<meta property="og:description" content="[TOC] 摘要这篇文章本身主要是讲解有回显情况下面下针对ssti的过滤如何进行绕过（本篇文章的测试环境是python3.9.13）。">
+<meta property="og:description" content="[TOC] 摘要这篇文章本身主要是讲解有回显情况下面针对ssti的过滤如何进行绕过（本篇文章的测试环境是python3.9.13）。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://aaaa-l.github.io/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87-%E6%9C%89%E5%9B%9E%E6%98%BE/1.jpg">
 <meta property="og:image" content="https://aaaa-l.github.io/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87-%E6%9C%89%E5%9B%9E%E6%98%BE/2.jpg">
@@ -36,7 +36,7 @@
 <meta property="og:image" content="https://aaaa-l.github.io/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87-%E6%9C%89%E5%9B%9E%E6%98%BE/7.jpg">
 <meta property="og:image" content="https://aaaa-l.github.io/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87-%E6%9C%89%E5%9B%9E%E6%98%BE/8.jpg">
 <meta property="article:published_time" content="2024-12-26T07:48:06.000Z">
-<meta property="article:modified_time" content="2024-12-29T06:45:32.651Z">
+<meta property="article:modified_time" content="2024-12-29T06:53:21.518Z">
 <meta property="article:author" content="AAAAl">
 <meta property="article:tag" content="ssti绕过">
 <meta property="article:tag" content="ssti有回显注入">
@@ -94,11 +94,11 @@
   <div class="content">
     <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
 <span class="sep"></span><a class="cap breadcrumb" href="/">文章</a><span class="sep"></span><a class="cap breadcrumb-link" href="/categories/python/">python</a> <span class="sep"></span> <a class="cap breadcrumb-link" href="/categories/python/ssti/">ssti</a> <span class="sep"></span> <a class="cap breadcrumb-link" href="/categories/python/ssti/%E7%BB%95%E8%BF%87/">绕过</a> <span class="sep"></span> <a class="cap breadcrumb-link" href="/categories/python/ssti/%E7%BB%95%E8%BF%87/%E6%9C%89%E5%9B%9E%E6%98%BE/">有回显</a></div>
-<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-12-26T07:48:06.000Z">2024-12-26</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-12-29T06:45:32.651Z">2024-12-29</time></span></div></div></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-12-26T07:48:06.000Z">2024-12-26</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-12-29T06:53:21.518Z">2024-12-29</time></span></div></div></div>
     
   </div>
   </div><article class="md-text content"><p>[TOC]</p>
-<h6 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h6><p>这篇文章本身主要是讲解有回显情况下面下针对ssti的过滤如何进行绕过（本篇文章的测试环境是python3.9.13）。</p>
+<h6 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h6><p>这篇文章本身主要是讲解有回显情况下面针对ssti的过滤如何进行绕过（本篇文章的测试环境是python3.9.13）。</p>
 <span id="more"></span>
 
 <p>在我看来，面对黑名单过滤，最常用的就是两种，第一种是想方法绕过关键字的匹配还能使注入生效，第二种就是对方过滤不全，我们使用其他关键字进行代替来注入。我们这里主要提的是第一种。</p>
