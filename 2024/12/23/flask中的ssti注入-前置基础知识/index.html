@@ -32,7 +32,7 @@
 <meta property="og:image" content="https://aaaa-l.github.io/2024/12/23/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E5%89%8D%E7%BD%AE%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/render_template_string.jpg">
 <meta property="og:image" content="https://aaaa-l.github.io/2024/12/23/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E5%89%8D%E7%BD%AE%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/globals.jpg">
 <meta property="article:published_time" content="2024-12-23T14:56:58.000Z">
-<meta property="article:modified_time" content="2024-12-26T05:30:22.640Z">
+<meta property="article:modified_time" content="2024-12-29T06:25:17.282Z">
 <meta property="article:author" content="AAAAl">
 <meta property="article:tag" content="python">
 <meta property="article:tag" content="ssti">
@@ -79,7 +79,7 @@
 <div class="widgets">
 
 
-<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/2024/12/23/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E5%89%8D%E7%BD%AE%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"><span class="title">flask中的ssti注入-前置基础知识</span></a></div></widget>
+<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87/"><span class="title">flask中的ssti注入-绕过-有回显</span></a><a class="item title" href="/2024/12/23/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E5%89%8D%E7%BD%AE%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"><span class="title">flask中的ssti注入-前置基础知识</span></a><a class="item title" href="/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87-%E6%9C%89%E5%9B%9E%E6%98%BE/"><span class="title">flask中的ssti注入-绕过</span></a></div></widget>
 </div>
 <footer class="footer dis-select"><div class="social-wrap"><a class="social" href="https://github.com/AAAA-l" target="_blank" rel="external nofollow noopener noreferrer"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/08a41b181ce68.svg"></a></div></footer>
 </div></aside><div class="l_main" id="main">
@@ -88,11 +88,11 @@
 
 
 
-<div class="article banner top"><img class="bg lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/assets/images/flask_ssti.jpg">
+<div class="article banner top"><img class="bg lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/assets/images/flask_ssti1.jpg">
   <div class="content">
     <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
 <span class="sep"></span><a class="cap breadcrumb" href="/">文章</a><span class="sep"></span><a class="cap breadcrumb-link" href="/categories/python/">python</a> <span class="sep"></span> <a class="cap breadcrumb-link" href="/categories/python/ssti/">ssti</a> <span class="sep"></span> <a class="cap breadcrumb-link" href="/categories/python/ssti/%E5%89%8D%E7%BD%AE%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">前置基础知识</a></div>
-<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-12-23T14:56:58.000Z">2024-12-23</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-12-26T05:30:22.640Z">2024-12-26</time></span></div></div></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-12-23T14:56:58.000Z">2024-12-23</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-12-29T06:25:17.282Z">2024-12-29</time></span></div></div></div>
     
   </div>
   </div><article class="md-text content"><p>[TOC]</p>
@@ -171,6 +171,25 @@
 <p>一共有6个，其中前两个是python中的内置类，是使用c语言写的，我们不能通过他们来获取对应的<code>__globals__</code>属性；后面四个，第一个是一个函数，后面三个是一个类，都是在Jinja2的utils.py中定义的，是使用python写的，我们可以通过他们来获取对应的<code>__globals__</code>属性。</p>
 <p>然后还有过滤器和测试函数，因为这两个有点多，所以这里不再张贴出来，他们分别是在Jinja2中的filters.py和tests.py。</p>
 <p>在针对ssti的过滤中，我们经常借助全局变量和过滤器来进行绕过。但是我们这里不详细讲解这些配置的作用，因为显得太啰嗦。在后面讲解ssti绕过的文章中，我们会讲解几个经典的借助过滤器和全局变量来进行绕过的利用。</p>
+<h2 id="flask中的上下文环境"><a href="#flask中的上下文环境" class="headerlink" title="flask中的上下文环境"></a>flask中的上下文环境</h2><p>Flask 中的 <strong>上下文环境</strong>（Context）是指在请求处理过程中，Flask 提供的一种机制，用于在不同的部分（如视图函数、模板、全局对象等）间共享和访问请求和应用的相关数据。它包括<strong>请求上下文</strong>和<strong>应用上下文</strong>。</p>
+<h4 id="请求上下文"><a href="#请求上下文" class="headerlink" title="请求上下文"></a>请求上下文</h4><ul>
+<li>**<code>request</code>**：包含当前 HTTP 请求的所有信息，例如请求方法、路径、数据（表单、JSON 等）、头部信息、cookies 等。</li>
+<li>**<code>session</code>**：用于存储与当前会话相关的信息。<code>session</code> 是一个类似字典的对象，常用于存储用户登录状态、用户偏好等会话数据。</li>
+<li>**<code>g</code>**：一个全局对象，可以用于在请求期间存储临时数据（如用户身份信息、数据库连接等）。<code>g</code> 的数据只在当前请求上下文内有效。</li>
+<li>**<code>url_for()</code>**：生成应用中指定视图函数的 URL。它可以动态构建路由的 URL 地址。</li>
+<li>**<code>get_flashed_messages()</code>**： 是 Flask 用来显示闪存消息的函数。闪存消息可以用于传递一次性的信息，如提示、警告等。</li>
+</ul>
+<h4 id="应用上下文"><a href="#应用上下文" class="headerlink" title="应用上下文"></a>应用上下文</h4><ul>
+<li><code>current_app</code>：当前 Flask 应用实例，用于访问应用配置和全局信息。</li>
+<li><code>config</code> ：是 Flask 应用的配置对象，包含应用的所有配置信息</li>
+<li><code>g</code>：用于存储应用级别的共享数据。</li>
+</ul>
+<p>这里只是列举了几个而已，但是这里列举的几个都是可以直接在模版中访问使用的<strong>（除了current_app，看有的资料说可以，但是测试了一下不行）</strong>，就像模版空间中的全局变量一样，这也是我们为什么要在这里提他。</p>
+<p>在进行ssti注入的时候，我们可以借助他们来构造payload，其中的request和session我们还可以借助他们来进行绕过。这里先提前了解一下。</p>
+<p><strong>注意，这里我们需要将他们和Jinja2中的模板环境中的全局变量区分开来，模板环境中的全局变量是可以直接在Jinja2中使用，但是应用上下文中的全局变量需要flask来进行注入（这个过程是自动的，不需要我们操作）之后才能进行使用。</strong></p>
+<p>之所以要提供这样的上下文环境，一方面肯定是为了数据共享，另一方面也是为了线程安全，这种方法也简化了程序员对一些基础性代码的重复书写，更加关注业务逻辑本身的实现。这些了解即可。</p>
+<h2 id="Jinja2中的两种语法结构"><a href="#Jinja2中的两种语法结构" class="headerlink" title="Jinja2中的两种语法结构"></a>Jinja2中的两种语法结构</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">&#123;&#123;&#125;&#125;<br>用于输出变量的值或表达式的结果。<br>&#123;%%&#125;<br>用于执行控制结构，如条件判断、循环、宏定义等。它不会直接输出内容，而是用于控制模板的逻辑和流程。<br></code></pre></td></tr></table></figure>
+
 <h1 id="ssti中使用到的魔术属性和魔术方法"><a href="#ssti中使用到的魔术属性和魔术方法" class="headerlink" title="ssti中使用到的魔术属性和魔术方法"></a>ssti中使用到的魔术属性和魔术方法</h1><h2 id="前置知识"><a href="#前置知识" class="headerlink" title="前置知识"></a>前置知识</h2><p><strong>我们先来看一个经典的ssti注入语句。</strong></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">().__class__.__base__.__subclasses__()[412].__init__.__globals__.__builtins__.__import__(&#x27;os&#x27;).popen(<br>&#x27;whoami&#x27;).read()<br><br>//注意，如果要使用这个payload进行本地测试的话，这里需要找到重写了__init__魔术方法的类的对应索引<br>//我这里412这个索引对应的类就重写了__init__方法，关于这点后面会进行讲解<br></code></pre></td></tr></table></figure>
 
@@ -194,6 +213,7 @@
 
 <h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>在一开始写这一篇文章的时候，我本来还想着介绍一下python中的数据容器，因为ssti手注出现错误时一般和这里有关，还有我们的一些绕过也和他有关。但是想着这里毕竟不是重点，再加上内容较为基础，就不再写了。</p>
 <p>其实这篇文章讲得还是比较浅，很多东西只是点到为止，像<code>root_render_func</code>这个函数的python代码到底是怎么生成的以及Jinja2中的沙箱机制的实现等，因为本人也不是很了解，所以没有进行深入。不过从了解和入门ssti注入漏洞这个角度来看，这篇文章是够了。</p>
+<h1 id="事后补充说明"><a href="#事后补充说明" class="headerlink" title="事后补充说明"></a>事后补充说明</h1><p>函数是可以直接访问<code>__builtins__</code>属性的，在写绕过时才发现的。因为文章本身懒得改了，所以在这里说明一下。其实影响也不大。</p>
 
 <div class="article-footer fs14">
     <section id="license">
@@ -203,7 +223,7 @@
     </section>
     </div>
 </article>
-
+<div class="related-wrap" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">较新文章</div><a href="/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87/">flask中的ssti注入-绕过-有回显</a></div><div class="item" id="next"></div></section></div>
 
 <div class="related-wrap" id="related-posts"></div>
 
@@ -271,7 +291,7 @@
 
 
 
-<widget class="widget-wrapper toc" id="data-toc" collapse="false"><div class="widget-header dis-select"><span class="name">本文目录</span><a class="cap-action" onclick="sidebar.toggleTOC()" ><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></a></div><div class="widget-body"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#flask%E6%A1%86%E6%9E%B6"><span class="toc-text">flask框架</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%83%85%E5%86%B5%E4%B8%8B%E9%9D%A2%E4%BC%9A%E4%BA%A7%E7%94%9Fssti%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E"><span class="toc-text">什么情况下面会产生ssti注入漏洞</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#render"><span class="toc-text">render</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#render-template"><span class="toc-text">render_template</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#render-template-string"><span class="toc-text">render_template_string</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Jinja2%E4%B8%AD%E7%9A%84%E6%A8%A1%E6%9D%BF%E7%8E%AF%E5%A2%83"><span class="toc-text">Jinja2中的模板环境</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E6%A8%A1%E6%9D%BF%E7%8E%AF%E5%A2%83%EF%BC%9F"><span class="toc-text">什么是模板环境？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%BB%98%E8%AE%A4%E7%9A%84%E6%A8%A1%E6%9D%BF%E7%8E%AF%E5%A2%83"><span class="toc-text">默认的模板环境</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#ssti%E4%B8%AD%E4%BD%BF%E7%94%A8%E5%88%B0%E7%9A%84%E9%AD%94%E6%9C%AF%E5%B1%9E%E6%80%A7%E5%92%8C%E9%AD%94%E6%9C%AF%E6%96%B9%E6%B3%95"><span class="toc-text">ssti中使用到的魔术属性和魔术方法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86"><span class="toc-text">前置知识</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#payload%E8%A7%A3%E6%9E%90"><span class="toc-text">payload解析</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-text">小结</span></a></li></ol></div><div class="widget-footer">
+<widget class="widget-wrapper toc" id="data-toc" collapse="false"><div class="widget-header dis-select"><span class="name">本文目录</span><a class="cap-action" onclick="sidebar.toggleTOC()" ><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></a></div><div class="widget-body"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#flask%E6%A1%86%E6%9E%B6"><span class="toc-text">flask框架</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%83%85%E5%86%B5%E4%B8%8B%E9%9D%A2%E4%BC%9A%E4%BA%A7%E7%94%9Fssti%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E"><span class="toc-text">什么情况下面会产生ssti注入漏洞</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#render"><span class="toc-text">render</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#render-template"><span class="toc-text">render_template</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#render-template-string"><span class="toc-text">render_template_string</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Jinja2%E4%B8%AD%E7%9A%84%E6%A8%A1%E6%9D%BF%E7%8E%AF%E5%A2%83"><span class="toc-text">Jinja2中的模板环境</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E6%A8%A1%E6%9D%BF%E7%8E%AF%E5%A2%83%EF%BC%9F"><span class="toc-text">什么是模板环境？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%BB%98%E8%AE%A4%E7%9A%84%E6%A8%A1%E6%9D%BF%E7%8E%AF%E5%A2%83"><span class="toc-text">默认的模板环境</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#flask%E4%B8%AD%E7%9A%84%E4%B8%8A%E4%B8%8B%E6%96%87%E7%8E%AF%E5%A2%83"><span class="toc-text">flask中的上下文环境</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%B7%E6%B1%82%E4%B8%8A%E4%B8%8B%E6%96%87"><span class="toc-text">请求上下文</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BA%94%E7%94%A8%E4%B8%8A%E4%B8%8B%E6%96%87"><span class="toc-text">应用上下文</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Jinja2%E4%B8%AD%E7%9A%84%E4%B8%A4%E7%A7%8D%E8%AF%AD%E6%B3%95%E7%BB%93%E6%9E%84"><span class="toc-text">Jinja2中的两种语法结构</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#ssti%E4%B8%AD%E4%BD%BF%E7%94%A8%E5%88%B0%E7%9A%84%E9%AD%94%E6%9C%AF%E5%B1%9E%E6%80%A7%E5%92%8C%E9%AD%94%E6%9C%AF%E6%96%B9%E6%B3%95"><span class="toc-text">ssti中使用到的魔术属性和魔术方法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86"><span class="toc-text">前置知识</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#payload%E8%A7%A3%E6%9E%90"><span class="toc-text">payload解析</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-text">小结</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8B%E5%90%8E%E8%A1%A5%E5%85%85%E8%AF%B4%E6%98%8E"><span class="toc-text">事后补充说明</span></a></li></ol></div><div class="widget-footer">
 
 <a class="top" onclick="util.scrollTop()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2c4.714 0 7.071 0 8.535 1.464C22 4.93 22 7.286 22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12Z"/><path stroke-linecap="round" stroke-linejoin="round" d="m9 15.5l3-3l3 3m-6-4l3-3l3 3"/></g></svg><span>回到顶部</span></a></div></widget>
 </div></aside><div class='float-panel blur'>
