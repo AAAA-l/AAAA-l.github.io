@@ -20,12 +20,12 @@
   <title>flask中的ssti注入-绕过 - AAAAl'blog</title>
 
   
-    <meta name="description" content="[TOC] 摘要这篇文章本身主要是讲解有回显情况下面针对ssti的过滤如何进行绕过（本篇文章的测试环境是python3.9.13）。">
+    <meta name="description" content="[TOC] 摘要这篇文章本身主要是讲解针对ssti的过滤如何进行绕过（本篇文章的测试环境是python3.9.13）。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="flask中的ssti注入-绕过">
 <meta property="og:url" content="https://aaaa-l.github.io/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87/">
 <meta property="og:site_name" content="AAAAl&#39;blog">
-<meta property="og:description" content="[TOC] 摘要这篇文章本身主要是讲解有回显情况下面针对ssti的过滤如何进行绕过（本篇文章的测试环境是python3.9.13）。">
+<meta property="og:description" content="[TOC] 摘要这篇文章本身主要是讲解针对ssti的过滤如何进行绕过（本篇文章的测试环境是python3.9.13）。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://aaaa-l.github.io/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87/1.jpg">
 <meta property="og:image" content="https://aaaa-l.github.io/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87/2.jpg">
@@ -36,7 +36,7 @@
 <meta property="og:image" content="https://aaaa-l.github.io/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87/7.jpg">
 <meta property="og:image" content="https://aaaa-l.github.io/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87/8.jpg">
 <meta property="article:published_time" content="2024-12-26T07:48:06.000Z">
-<meta property="article:modified_time" content="2024-12-30T13:09:29.573Z">
+<meta property="article:modified_time" content="2024-12-30T13:52:08.867Z">
 <meta property="article:author" content="AAAAl">
 <meta property="article:tag" content="python">
 <meta property="article:tag" content="ssti">
@@ -81,7 +81,7 @@
 <div class="widgets">
 
 
-<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/2024/12/23/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E5%89%8D%E7%BD%AE%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"><span class="title">flask中的ssti注入-前置基础知识</span></a><a class="item title" href="/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87/"><span class="title">flask中的ssti注入-绕过</span></a></div></widget>
+<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87/"><span class="title">flask中的ssti注入-绕过</span></a><a class="item title" href="/2024/12/30/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E6%97%A0%E5%9B%9E%E6%98%BE/"><span class="title">flask中的ssti注入-无回显</span></a><a class="item title" href="/2024/12/23/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E5%89%8D%E7%BD%AE%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"><span class="title">flask中的ssti注入-前置基础知识</span></a></div></widget>
 </div>
 <footer class="footer dis-select"><div class="social-wrap"><a class="social" href="https://github.com/AAAA-l" target="_blank" rel="external nofollow noopener noreferrer"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/08a41b181ce68.svg"></a></div></footer>
 </div></aside><div class="l_main" id="main">
@@ -94,11 +94,11 @@
   <div class="content">
     <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
 <span class="sep"></span><a class="cap breadcrumb" href="/">文章</a><span class="sep"></span><a class="cap breadcrumb-link" href="/categories/python/">python</a> <span class="sep"></span> <a class="cap breadcrumb-link" href="/categories/python/ssti/">ssti</a></div>
-<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-12-26T07:48:06.000Z">2024-12-26</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-12-30T13:09:29.573Z">2024-12-30</time></span></div></div></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-12-26T07:48:06.000Z">2024-12-26</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-12-30T13:52:08.867Z">2024-12-30</time></span></div></div></div>
     
   </div>
   </div><article class="md-text content"><p>[TOC]</p>
-<h6 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h6><p>这篇文章本身主要是讲解有回显情况下面针对ssti的过滤如何进行绕过（本篇文章的测试环境是python3.9.13）。</p>
+<h6 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h6><p>这篇文章本身主要是讲解针对ssti的过滤如何进行绕过（本篇文章的测试环境是python3.9.13）。</p>
 <span id="more"></span>
 
 <p>在我看来，面对黑名单过滤，最常用的就是两种，第一种是想方法绕过关键字的匹配还能使注入生效，第二种就是对方过滤不全，我们使用其他关键字进行代替来注入。我们这里主要提的是第一种。</p>
@@ -315,7 +315,7 @@
     </section>
     </div>
 </article>
-<div class="related-wrap" id="read-next"><section class="body"><div class="item" id="prev"></div><div class="item" id="next"><div class="note">较早文章</div><a href="/2024/12/23/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E5%89%8D%E7%BD%AE%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">flask中的ssti注入-前置基础知识</a></div></section></div>
+<div class="related-wrap" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">较新文章</div><a href="/2024/12/30/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E6%97%A0%E5%9B%9E%E6%98%BE/">flask中的ssti注入-无回显</a></div><div class="item" id="next"><div class="note">较早文章</div><a href="/2024/12/23/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E5%89%8D%E7%BD%AE%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">flask中的ssti注入-前置基础知识</a></div></section></div>
 
 <div class="related-wrap" id="related-posts">
     <section class='header'>
