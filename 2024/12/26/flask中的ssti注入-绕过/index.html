@@ -36,7 +36,7 @@
 <meta property="og:image" content="https://aaaa-l.github.io/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87/7.jpg">
 <meta property="og:image" content="https://aaaa-l.github.io/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87/8.jpg">
 <meta property="article:published_time" content="2024-12-26T07:48:06.000Z">
-<meta property="article:modified_time" content="2024-12-30T18:27:53.090Z">
+<meta property="article:modified_time" content="2024-12-31T05:08:32.710Z">
 <meta property="article:author" content="AAAAl">
 <meta property="article:tag" content="绕过">
 <meta name="twitter:card" content="summary_large_image">
@@ -79,7 +79,7 @@
 <div class="widgets">
 
 
-<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/2024/12/30/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E6%97%A0%E5%9B%9E%E6%98%BE/"><span class="title">flask中的ssti注入-无回显</span></a><a class="item title" href="/2024/12/23/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E5%89%8D%E7%BD%AE%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"><span class="title">flask中的ssti注入-前置基础知识</span></a><a class="item title" href="/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87/"><span class="title">flask中的ssti注入-绕过</span></a></div></widget>
+<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/2024/12/30/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E6%97%A0%E5%9B%9E%E6%98%BE/"><span class="title">flask中的ssti注入-无回显</span></a><a class="item title" href="/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87/"><span class="title">flask中的ssti注入-绕过</span></a><a class="item title" href="/2024/12/23/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E5%89%8D%E7%BD%AE%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"><span class="title">flask中的ssti注入-前置基础知识</span></a></div></widget>
 </div>
 <footer class="footer dis-select"><div class="social-wrap"><a class="social" href="https://github.com/AAAA-l" target="_blank" rel="external nofollow noopener noreferrer"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/08a41b181ce68.svg"></a></div></footer>
 </div></aside><div class="l_main" id="main">
@@ -92,7 +92,7 @@
   <div class="content">
     <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
 <span class="sep"></span><a class="cap breadcrumb" href="/">文章</a><span class="sep"></span><a class="cap breadcrumb-link" href="/categories/python/">python</a> <span class="sep"></span> <a class="cap breadcrumb-link" href="/categories/python/ssti/">ssti</a></div>
-<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-12-26T07:48:06.000Z">2024-12-26</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-12-30T18:27:53.090Z">2024-12-31</time></span></div></div></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-12-26T07:48:06.000Z">2024-12-26</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-12-31T05:08:32.710Z">2024-12-31</time></span></div></div></div>
     
   </div>
   </div><article class="md-text content"><p>[TOC]</p>
@@ -280,8 +280,8 @@
 
 <p>差不多就是这两个方向，要么使用python中的函数，要么使用Jinja2中的过滤器。</p>
 <p>然后得到数字之后，如何进行拼接，其实也存在着一定问题，但是这里就不再细讲了。如果有机会再补充吧。</p>
-<h3 id="一些有趣的绕过和知识"><a href="#一些有趣的绕过和知识" class="headerlink" title="一些有趣的绕过和知识"></a>一些有趣的绕过和知识</h3><h4 id="长度绕过"><a href="#长度绕过" class="headerlink" title="长度绕过"></a>长度绕过</h4><p>直接参考ctfshow单身杯ctf中ezzz__ssti的题解：<a target="_blank" rel="noopener" href="https://ctf-show.feishu.cn/docx/R6udd58bxoQGQMxFphncZq8rn5e">https://ctf-show.feishu.cn/docx/R6udd58bxoQGQMxFphncZq8rn5e</a></p>
-<h4 id="Jinja2语法标识绕过（要求存在原型链污染）"><a href="#Jinja2语法标识绕过（要求存在原型链污染）" class="headerlink" title="Jinja2语法标识绕过（要求存在原型链污染）"></a>Jinja2语法标识绕过（要求存在原型链污染）</h4><p>简单来说，就是<code>&#123;&#123;&#125;&#125;</code>和<code>&#123;%%&#125;</code>这两种语法标识，如果存在原型链污染漏洞的话，我们是可以污染成我们自己设定的语法标识。具体可以参考这篇文章：<a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/13072?time__1311=GqmhBKwKGNDKKYIq7IYGIqYvAM4jOTbD#toc-13">https://xz.aliyun.com/t/13072?time__1311=GqmhBKwKGNDKKYIq7IYGIqYvAM4jOTbD#toc-13</a></p>
+<h3 id="一些有趣的绕过和知识"><a href="#一些有趣的绕过和知识" class="headerlink" title="一些有趣的绕过和知识"></a>一些有趣的绕过和知识</h3><h4 id="长度绕过"><a href="#长度绕过" class="headerlink" title="长度绕过"></a>长度绕过</h4><p>直接参考<a target="_blank" rel="noopener" href="https://ctf-show.feishu.cn/docx/R6udd58bxoQGQMxFphncZq8rn5e">ctfshow单身杯ctf中ezzz__ssti的题解</a></p>
+<h4 id="Jinja2语法标识绕过（要求存在原型链污染）"><a href="#Jinja2语法标识绕过（要求存在原型链污染）" class="headerlink" title="Jinja2语法标识绕过（要求存在原型链污染）"></a>Jinja2语法标识绕过（要求存在原型链污染）</h4><p>简单来说，就是<code>&#123;&#123;&#125;&#125;</code>和<code>&#123;%%&#125;</code>这两种语法标识，如果存在原型链污染漏洞的话，我们是可以污染成我们自己设定的语法标识。具体可以<a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/13072?time__1311=GqmhBKwKGNDKKYIq7IYGIqYvAM4jOTbD#toc-13">参考这篇文章</a></p>
 <h4 id="未定义类的注入"><a href="#未定义类的注入" class="headerlink" title="未定义类的注入"></a>未定义类的注入</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">&#123;&#123;x.__init__.__builtins__.eval(&quot;__\u0069\u006d\u0070\u006f\u0072\u0074__(&#x27;o&#x27;&#x27;s&#x27;).popen(&#x27;echo hello&#x27;).read()&quot;)&#125;&#125;  <br></code></pre></td></tr></table></figure>
 
 <p>这里x我们没有进行定义，这个时候的x属于<strong>runtime.py中的Undefined类</strong>，而且这个类还重写了<code>__init__</code>方法，所以我们这里直接就可以使用他来获取内置模块。</p>
