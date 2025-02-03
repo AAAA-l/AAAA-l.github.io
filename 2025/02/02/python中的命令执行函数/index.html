@@ -1,0 +1,704 @@
+
+<!DOCTYPE html><html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.29.1" theme-name="Stellar" theme-version="1.29.1">
+  
+  <meta name="generator" content="Hexo 7.3.0">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000">
+  <meta name="theme-color" content="#f9fafb">
+  
+  <title>python中的命令执行函数 - AAAAl'blog</title>
+
+  
+    <meta name="description" content="[TOC] 摘要在ctf有关python的题目中，ssti注入，沙箱逃逸，pickle反序列化等往往会涉及到命令执行，所以这里我们写一篇文章来记录一下各类命令执行函数的使用。 命令执行os模块system函数是使用c语言实现的一个函数，底层调用的是c语言中的system函数，而且这个函数并不在。比较有趣的一点就是在windows上面python3.9版本中，我在os.py文件中没有找到system">
+<meta property="og:type" content="article">
+<meta property="og:title" content="python中的命令执行函数">
+<meta property="og:url" content="https://aaaa-l.github.io/2025/02/02/python%E4%B8%AD%E7%9A%84%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E5%87%BD%E6%95%B0/">
+<meta property="og:site_name" content="AAAAl&#39;blog">
+<meta property="og:description" content="[TOC] 摘要在ctf有关python的题目中，ssti注入，沙箱逃逸，pickle反序列化等往往会涉及到命令执行，所以这里我们写一篇文章来记录一下各类命令执行函数的使用。 命令执行os模块system函数是使用c语言实现的一个函数，底层调用的是c语言中的system函数，而且这个函数并不在。比较有趣的一点就是在windows上面python3.9版本中，我在os.py文件中没有找到system">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://aaaa-l.github.io/2025/02/02/python%E4%B8%AD%E7%9A%84%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E5%87%BD%E6%95%B0/1.jpg">
+<meta property="og:image" content="https://aaaa-l.github.io/2025/02/02/python%E4%B8%AD%E7%9A%84%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E5%87%BD%E6%95%B0/2.jpg">
+<meta property="og:image" content="https://aaaa-l.github.io/2025/02/02/python%E4%B8%AD%E7%9A%84%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E5%87%BD%E6%95%B0/3.jpg">
+<meta property="og:image" content="https://aaaa-l.github.io/2025/02/02/python%E4%B8%AD%E7%9A%84%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E5%87%BD%E6%95%B0/4.jpg">
+<meta property="og:image" content="https://aaaa-l.github.io/2025/02/02/python%E4%B8%AD%E7%9A%84%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E5%87%BD%E6%95%B0/5.jpg">
+<meta property="article:published_time" content="2025-02-02T01:34:56.000Z">
+<meta property="article:modified_time" content="2025-02-03T09:03:44.233Z">
+<meta property="article:author" content="AAAAl">
+<meta property="article:tag" content="rce">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://aaaa-l.github.io/2025/02/02/python%E4%B8%AD%E7%9A%84%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E5%87%BD%E6%95%B0/1.jpg">
+  
+  
+  
+  <meta name="keywords" content="rce">
+
+  <!-- feed -->
+  
+
+  <link rel="stylesheet" href="/css/main.css?v=1.29.1">
+
+  
+    <link rel="shortcut icon" href="/assets/images/avatar.jpg">
+  
+
+  
+    
+<link rel="stylesheet" href="https://gcore.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/atom-one-dark.min.css">
+
+  
+
+  
+</head>
+<body><div class="sitebg"><div class="siteblur"></div></div>
+
+<div class="l_body s:aa content tech" id="start" layout="post" ><aside class="l_left"><div class="leftbar-container">
+
+
+<header class="header"><div class="logo-wrap"><a class="avatar" href="/about/"><div class="bg" style="opacity:0;background-image:url(https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/rainbow64@3x.webp);"></div><img no-lazy class="avatar" src="/assets/images/avatar.jpg" onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="title" href="/"><div class="main" ff="title">AAAAl'blog</div></a></div></header>
+
+<div class="nav-area">
+<div class="search-wrapper" id="search-wrapper"><form class="search-form"><a class="search-button" onclick="document.getElementById(&quot;search-input&quot;).focus();"><svg t="1705074644177" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></a><input type="text" class="search-input" id="search-input" placeholder="站内搜索"></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div>
+
+
+<nav class="menu dis-select"><a class="nav-item" title="首页" href="/" style="color:#1BCDFC"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M5.879 2.879C5 3.757 5 5.172 5 8v8c0 2.828 0 4.243.879 5.121C6.757 22 8.172 22 11 22h2c2.828 0 4.243 0 5.121-.879C19 20.243 19 18.828 19 16V8c0-2.828 0-4.243-.879-5.121C17.243 2 15.828 2 13 2h-2c-2.828 0-4.243 0-5.121.879M8.25 17a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1-.75-.75M9 12.25a.75.75 0 0 0 0 1.5h6a.75.75 0 0 0 0-1.5zM8.25 9A.75.75 0 0 1 9 8.25h6a.75.75 0 0 1 0 1.5H9A.75.75 0 0 1 8.25 9" clip-rule="evenodd"/><path fill="currentColor" d="M5.235 4.058C5 4.941 5 6.177 5 8v8c0 1.823 0 3.058.235 3.942L5 19.924c-.975-.096-1.631-.313-2.121-.803C2 18.243 2 16.828 2 14v-4c0-2.829 0-4.243.879-5.121c.49-.49 1.146-.707 2.121-.803zm13.53 15.884C19 19.058 19 17.822 19 16V8c0-1.823 0-3.059-.235-3.942l.235.018c.975.096 1.631.313 2.121.803C22 5.757 22 7.17 22 9.999v4c0 2.83 0 4.243-.879 5.122c-.49.49-1.146.707-2.121.803z" opacity=".5"/></svg></a><a class="nav-item" title="分类" href="/categories/" style="color:#3DC550"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M14.25 4.48v3.057c0 .111 0 .27.02.406a.936.936 0 0 0 .445.683a.96.96 0 0 0 .783.072c.13-.04.272-.108.378-.159L17 8.005l1.124.534c.106.05.248.119.378.16a.958.958 0 0 0 .783-.073a.936.936 0 0 0 .444-.683c.021-.136.021-.295.021-.406V3.031c.113-.005.224-.01.332-.013C21.154 2.98 22 3.86 22 4.933v11.21c0 1.112-.906 2.01-2.015 2.08c-.97.06-2.108.179-2.985.41c-1.082.286-1.99 1.068-3.373 1.436c-.626.167-1.324.257-1.627.323V5.174c.32-.079 1.382-.203 1.674-.371c.184-.107.377-.216.576-.323m5.478 8.338a.75.75 0 0 1-.546.91l-4 1a.75.75 0 0 1-.364-1.456l4-1a.75.75 0 0 1 .91.546" clip-rule="evenodd"/><path fill="currentColor" d="M18.25 3.151c-.62.073-1.23.18-1.75.336a8.2 8.2 0 0 0-.75.27v3.182l.75-.356l.008-.005a1.13 1.13 0 0 1 .492-.13c.047 0 .094.004.138.01c.175.029.315.1.354.12l.009.005l.749.356V3.647z"/><path fill="currentColor" d="M12 5.214c-.334-.064-1.057-.161-1.718-.339C8.938 4.515 8.05 3.765 7 3.487c-.887-.234-2.041-.352-3.018-.412C2.886 3.007 2 3.9 2 4.998v11.146c0 1.11.906 2.01 2.015 2.079c.97.06 2.108.179 2.985.41c.486.129 1.216.431 1.873.726c1.005.451 2.052.797 3.127 1.034z" opacity=".5"/><path fill="currentColor" d="M4.273 12.818a.75.75 0 0 1 .91-.545l4 1a.75.75 0 1 1-.365 1.455l-4-1a.75.75 0 0 1-.545-.91m.909-4.545a.75.75 0 1 0-.364 1.455l4 1a.75.75 0 0 0 .364-1.455z"/></svg></a><a class="nav-item" title="关于" href="/about/" style="color:#FA6400"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M20 12a8 8 0 1 1-16 0a8 8 0 0 1 16 0" opacity=".5"/><path fill="currentColor" d="M17.712 5.453c1.047-.193 2.006-.259 2.797-.152c.77.103 1.536.393 1.956 1.064c.446.714.312 1.542-.012 2.258c-.33.728-.918 1.499-1.672 2.268c-1.516 1.547-3.836 3.226-6.597 4.697c-2.763 1.472-5.495 2.484-7.694 2.92c-1.095.217-2.098.299-2.923.201c-.8-.095-1.6-.383-2.032-1.075c-.47-.752-.296-1.63.07-2.379c.375-.768 1.032-1.586 1.872-2.403L4 12.416c0 .219.083.71.168 1.146c.045.23.09.444.123.596c-.652.666-1.098 1.263-1.339 1.756c-.277.567-.208.825-.145.925c.072.116.305.305.937.38c.609.073 1.44.018 2.455-.183c2.02-.4 4.613-1.351 7.28-2.772c2.667-1.42 4.85-3.015 6.23-4.423c.694-.707 1.15-1.334 1.377-1.836c.233-.515.167-.75.107-.844c-.07-.112-.289-.294-.883-.374c-.542-.072-1.272-.041-2.163.112L16.87 5.656c.338-.101.658-.17.842-.203"/></svg></a><a class="nav-item" title="更多" href="/more/" style="color:#F44336"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="m13.629 20.472l-.542.916c-.483.816-1.69.816-2.174 0l-.542-.916c-.42-.71-.63-1.066-.968-1.262c-.338-.197-.763-.204-1.613-.219c-1.256-.021-2.043-.098-2.703-.372a5 5 0 0 1-2.706-2.706C2 14.995 2 13.83 2 11.5v-1c0-3.273 0-4.91.737-6.112a5 5 0 0 1 1.65-1.651C5.59 2 7.228 2 10.5 2h3c3.273 0 4.91 0 6.113.737a5 5 0 0 1 1.65 1.65C22 5.59 22 7.228 22 10.5v1c0 2.33 0 3.495-.38 4.413a5 5 0 0 1-2.707 2.706c-.66.274-1.447.35-2.703.372c-.85.015-1.275.022-1.613.219c-.338.196-.548.551-.968 1.262" opacity=".5"/><path fill="currentColor" d="M10.99 14.308c-1.327-.978-3.49-2.84-3.49-4.593c0-2.677 2.475-3.677 4.5-1.609c2.025-2.068 4.5-1.068 4.5 1.609c0 1.752-2.163 3.615-3.49 4.593c-.454.335-.681.502-1.01.502c-.329 0-.556-.167-1.01-.502"/></svg></a></nav>
+</div>
+<div class="widgets">
+
+
+<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/2025/02/02/python%E4%B8%AD%E7%9A%84%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E5%87%BD%E6%95%B0/"><span class="title">python中的命令执行函数</span></a><a class="item title" href="/2025/01/28/php-filter%E5%8D%8F%E8%AE%AE%E7%9A%84%E5%A6%99%E7%94%A8/"><span class="title">php://filter协议的妙用</span></a><a class="item title" href="/2024/12/30/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E6%97%A0%E5%9B%9E%E6%98%BE/"><span class="title">flask中的ssti注入-无回显</span></a><a class="item title" href="/2025/01/08/linus%E4%B8%AD%E7%9A%84%E6%8F%90%E6%9D%83-suid%E6%8F%90%E6%9D%83/"><span class="title">linus中的提权-suid提权</span></a><a class="item title" href="/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87/"><span class="title">flask中的ssti注入-绕过</span></a><a class="item title" href="/2024/12/23/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E5%89%8D%E7%BD%AE%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"><span class="title">flask中的ssti注入-前置基础知识</span></a></div></widget>
+</div>
+<footer class="footer dis-select"><div class="social-wrap"><a class="social" href="https://github.com/AAAA-l" target="_blank" rel="external nofollow noopener noreferrer"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/08a41b181ce68.svg"></a></div></footer>
+</div></aside><div class="l_main" id="main">
+
+
+
+
+
+<div class="article banner top"><img class="bg lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/assets/images/python-rce.jpg">
+  <div class="content">
+    <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
+<span class="sep"></span><a class="cap breadcrumb" href="/">文章</a><span class="sep"></span><a class="cap breadcrumb-link" href="/categories/python/">python</a></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2025-02-02T01:34:56.000Z">2025-02-02</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2025-02-03T09:03:44.233Z">2025-02-03</time></span></div></div></div>
+    
+  </div>
+  </div><article class="md-text content"><p>[TOC]</p>
+<h6 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h6><p>在ctf有关python的题目中，<strong>ssti注入，沙箱逃逸，pickle反序列化</strong>等往往会涉及到命令执行，所以这里我们写一篇文章来记录一下各类命令执行函数的使用。</p>
+<h2 id="命令执行"><a href="#命令执行" class="headerlink" title="命令执行"></a>命令执行</h2><h3 id="os模块"><a href="#os模块" class="headerlink" title="os模块"></a>os模块</h3><h4 id="system函数"><a href="#system函数" class="headerlink" title="system函数"></a>system函数</h4><p>是使用<code>c语言</code>实现的一个函数，底层调用的是c语言中的<code>system</code>函数，而且这个函数并不在。比较有趣的一点就是在<code>windows</code>上面<code>python3.9</code>版本中，我在<code>os.py文件</code>中没有找到system函数的定义，反而在<code>nt.py文件</code>中找到了定义。<strong>但是实际调用的时候还是通过os.system来调用</strong>。</p>
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2025/02/02/python%E4%B8%AD%E7%9A%84%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E5%87%BD%E6%95%B0/1.jpg" class="lazy" title="system文档说明">
+
+<p>在执行结束后，会在控制台中打印出执行结果。因为返回值不是命令执行的结果，所以在使用system函数的时候要进行外带或者反弹等。</p>
+<h4 id="popen函数"><a href="#popen函数" class="headerlink" title="popen函数"></a>popen函数</h4><p>我们看一下源代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">popen</span>(<span class="hljs-params">cmd, mode=<span class="hljs-string">&quot;r&quot;</span>, buffering=-<span class="hljs-number">1</span></span>):<br>       <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> <span class="hljs-built_in">isinstance</span>(cmd, <span class="hljs-built_in">str</span>):<br>           <span class="hljs-keyword">raise</span> TypeError(<span class="hljs-string">&quot;invalid cmd type (%s, expected string)&quot;</span> % <span class="hljs-built_in">type</span>(cmd))<br>       <span class="hljs-keyword">if</span> mode <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> (<span class="hljs-string">&quot;r&quot;</span>, <span class="hljs-string">&quot;w&quot;</span>):<br>           <span class="hljs-keyword">raise</span> ValueError(<span class="hljs-string">&quot;invalid mode %r&quot;</span> % mode)<br>       <span class="hljs-keyword">if</span> buffering == <span class="hljs-number">0</span> <span class="hljs-keyword">or</span> buffering <span class="hljs-keyword">is</span> <span class="hljs-literal">None</span>:<br>           <span class="hljs-keyword">raise</span> ValueError(<span class="hljs-string">&quot;popen() does not support unbuffered streams&quot;</span>)<br>       <span class="hljs-keyword">import</span> subprocess<br>       <span class="hljs-keyword">if</span> mode == <span class="hljs-string">&quot;r&quot;</span>:<br>           proc = subprocess.Popen(cmd,<br>                                   shell=<span class="hljs-literal">True</span>, text=<span class="hljs-literal">True</span>,<br>                                   stdout=subprocess.PIPE,<br>                                   bufsize=buffering)<br>           <span class="hljs-keyword">return</span> _wrap_close(proc.stdout, proc)<br>       <span class="hljs-keyword">else</span>:<br>           proc = subprocess.Popen(cmd,<br>                                   shell=<span class="hljs-literal">True</span>, text=<span class="hljs-literal">True</span>,<br>                                   stdin=subprocess.PIPE,<br>                                   bufsize=buffering)<br>           <span class="hljs-keyword">return</span> _wrap_close(proc.stdin, proc)<br></code></pre></td></tr></table></figure>
+
+<p>可以看到<code>popen</code>函数本质上是调用了<code>subprocess.Popen</code>类的构造方法，<code>popen</code>函数给人们提供了更加简便的调用接口，如果需要更加精细的操作，就可以直接使用<code>subprocess.Popen类</code>。</p>
+<p>最后返回一个<code> _wrap_close</code>对象，这个对象包装了一个流对象和一个子进程对象，其中的流对象中就包含了我们命令执行的结果，可以理解为一个文件对象。<code>_wrap_close</code>对象实现了一个方法：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">def __getattr__(self, name):<br>    return getattr(self._stream, name)<br></code></pre></td></tr></table></figure>
+
+<p>这个方法就是将未定义的属性委托给流对象，所以我们在使用popen函数执行命令的时候，最后<code>os.popen().reand</code>就是在调用流对象中的read()方法，最终我们就得到了我们命令执行的结果。但是最后的执行结果并不会在控制台中打印出来。</p>
+<p>这里的<code>cmd</code>参数只能接收字符串类型，而且<code>cmd</code>参数是在子进程中传递给shell执行的，所以如果存在和系统平台冲突的特殊字符，这里要进行转义。</p>
+<h4 id="execlp"><a href="#execlp" class="headerlink" title="execlp"></a>execlp</h4><p>用于执行一个可执行文件，并用新的进程替换当前进程。这个函数调到最后其实调用的是execvp。这个过程涉及到很多其他函数，我们都可以使用这些函数来执行命令，这里不一一列举了，感兴趣的可以去看一下文档和源码。</p>
+<p>这个函数接受一个执行文件名和传递给该可执行文件的参数，如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">os.execlp(&#x27;whoami&#x27;,&#x27;whoami&#x27;)<br>os.execlp(&#x27;ls&#x27;,&#x27;ls&#x27;,&#x27;-l&#x27;)<br>//这里至少要传递两个参数，否则会报错，这里传递的可执行文件我们也可以使用绝对路径<br></code></pre></td></tr></table></figure>
+
+<p>这个函数没有返回值，而且使用这个函数会影响到当前进程，我在shell中测试的时候，直接从python进程当中退出了。</p>
+<h3 id="nt模块或者posix模块"><a href="#nt模块或者posix模块" class="headerlink" title="nt模块或者posix模块"></a>nt模块或者posix模块</h3><p>我们前面不是说了吗，在windows上面system函数其实是定义在<code>nt.py</code>文件中的。而在unix中，system函数其实是定义在<code>posix.py文件</code>中的。这里是使用了分层设计的思想，当我们安装python的时候，在不同的操作系统，底层模块之间也是存在差异的，os模块封装了不同操作系统的底层差异，给我们提供了一个统一的使用接口，提高了程序的兼容性。</p>
+<p>如果不考虑兼容性，我们也是可以直接通过<code>nt.system</code>或者<code>posix.system</code>来执行命令的。</p>
+<h3 id="subprocess模块"><a href="#subprocess模块" class="headerlink" title="subprocess模块"></a>subprocess模块</h3><h4 id="Popen类"><a href="#Popen类" class="headerlink" title="Popen类"></a>Popen类</h4><p>这个本质上调用的是这个类的构造函数来执行命令，包含的参数非常多，这里只简单介绍两个。</p>
+<p>一个是<strong>args</strong>，一个是<strong>shell</strong>。args传递的就是我们要执行的命令，这个参数可以是字符串，也可以是序列（元组或者列表）。shell参数是一个布尔类型。当<strong>args</strong>是字符串的时候，这个时候shell参数一定要是True，默认是False。</p>
+<p>推荐是使用序列的形式，因为这样可以防止shell注入，提前发现问题，如果是字符串形式的话还需要进行转义。</p>
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2025/02/02/python%E4%B8%AD%E7%9A%84%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E5%87%BD%E6%95%B0/2.jpg" class="lazy" title="shell参数说明文档">
+
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2025/02/02/python%E4%B8%AD%E7%9A%84%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E5%87%BD%E6%95%B0/3.jpg" class="lazy" title="Security Considerations段落">
+
+<p>我们这里举两个具体的例子：</p>
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2025/02/02/python%E4%B8%AD%E7%9A%84%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E5%87%BD%E6%95%B0/4.jpg" class="lazy" title="例子展示的截图">
+
+<p>因为我们这里是使用的Popen类的构造函数，所以最后返回的是一个Popen对象。同时运行这个函数会将命令执行结果打印在控制台。但是如果我们想要读取命令执行的结果，我们还需要设置两个参数。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> subprocess<br><br><span class="hljs-comment"># 要执行的命令</span><br>command = [<span class="hljs-string">&quot;whoami&quot;</span>]<br><br><span class="hljs-comment"># 创建子进程</span><br>process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=<span class="hljs-literal">True</span>)<br><br><span class="hljs-comment"># 读取标准输出和标准错误</span><br>stdout, stderr = process.communicate()<br><br><span class="hljs-comment"># 获取命令的退出状态码</span><br>returncode = process.returncode<br><br><span class="hljs-comment"># 打印结果</span><br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Standard Output:&quot;</span>)<br><span class="hljs-built_in">print</span>(stdout)<br><br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Standard Error:&quot;</span>)<br><span class="hljs-built_in">print</span>(stderr)<br><br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Return Code:&quot;</span>)<br><span class="hljs-built_in">print</span>(returncode)<br></code></pre></td></tr></table></figure>
+
+<p>PIPE表示打开的标准流通道，用于两个进程之间进行通信，而text是用来设置是否将输入和输出进行文本编转换的。更多详细信息可以看一下<a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3/library/subprocess.html#subprocess.PIPE">文档</a>。</p>
+<h4 id="run函数"><a href="#run函数" class="headerlink" title="run函数"></a>run函数</h4><p>源码比较长，这里就不放出来了。这里底层调用的还是<code>Popen类的构造函数</code>。</p>
+<p>和<code>Popen类的构造函数</code>相比，这里多了四个参数，直接看下面文档截图。</p>
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2025/02/02/python%E4%B8%AD%E7%9A%84%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E5%87%BD%E6%95%B0/5.jpg" class="lazy" title="run函数文档截图">
+
+<p>所以我们调用run函数是这样<code>subprocess.run(&#39;whoami&#39;，capture_output=True, text=True)</code>。</p>
+<p>但是返回的对象不也一样，run函数返回的对象是<code>CompletedProcess</code>，这个对象有stdout和stderr属性，所以我们可以直接获取，而不是调用communicate()方法，这个对象本身也没有communicate()方法。</p>
+<h4 id="call函数"><a href="#call函数" class="headerlink" title="call函数"></a>call函数</h4><p>看一下源代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">call</span>(<span class="hljs-params">*popenargs, timeout=<span class="hljs-literal">None</span>, **kwargs</span>):<br>    <span class="hljs-string">&quot;&quot;&quot;Run command with arguments.  Wait for command to complete or</span><br><span class="hljs-string">    timeout, then return the returncode attribute.</span><br><span class="hljs-string"></span><br><span class="hljs-string">    The arguments are the same as for the Popen constructor.  Example:</span><br><span class="hljs-string"></span><br><span class="hljs-string">    retcode = call([&quot;ls&quot;, &quot;-l&quot;])</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br>    <span class="hljs-keyword">with</span> Popen(*popenargs, **kwargs) <span class="hljs-keyword">as</span> p:<br>        <span class="hljs-keyword">try</span>:<br>            <span class="hljs-keyword">return</span> p.wait(timeout=timeout)<br>        <span class="hljs-keyword">except</span>:  <span class="hljs-comment"># Including KeyboardInterrupt, wait handled that.</span><br>            p.kill()<br>            <span class="hljs-comment"># We don&#x27;t call p.wait() again as p.__exit__ does that for us.</span><br>            <span class="hljs-keyword">raise</span><br></code></pre></td></tr></table></figure>
+
+<p>可以发现最后调用得还是<code>Popen类的构造函数</code>。只不过这里增加了一个延迟的参数，以及最后返回的是命令退出的状态码。其他一样。</p>
+<h4 id="check-call函数"><a href="#check-call函数" class="headerlink" title="check_call函数"></a>check_call函数</h4><p>看一下源代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">check_call</span>(<span class="hljs-params">*popenargs, **kwargs</span>):<br>    <span class="hljs-string">&quot;&quot;&quot;Run command with arguments.  Wait for command to complete.  If</span><br><span class="hljs-string">    the exit code was zero then return, otherwise raise</span><br><span class="hljs-string">    CalledProcessError.  The CalledProcessError object will have the</span><br><span class="hljs-string">    return code in the returncode attribute.</span><br><span class="hljs-string"></span><br><span class="hljs-string">    The arguments are the same as for the call function.  Example:</span><br><span class="hljs-string"></span><br><span class="hljs-string">    check_call([&quot;ls&quot;, &quot;-l&quot;])</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br>    retcode = call(*popenargs, **kwargs)<br>    <span class="hljs-keyword">if</span> retcode:<br>        cmd = kwargs.get(<span class="hljs-string">&quot;args&quot;</span>)<br>        <span class="hljs-keyword">if</span> cmd <span class="hljs-keyword">is</span> <span class="hljs-literal">None</span>:<br>            cmd = popenargs[<span class="hljs-number">0</span>]<br>        <span class="hljs-keyword">raise</span> CalledProcessError(retcode, cmd)<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span><br></code></pre></td></tr></table></figure>
+
+<p>这里本质上是调用了call函数，所以和call函数基本一样，只不过增加了一个对于返回状态码的处理。</p>
+<h4 id="check-output函数"><a href="#check-output函数" class="headerlink" title="check_output函数"></a>check_output函数</h4><p>注释有点长，所以这里只 张贴源代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">check_output</span>(<span class="hljs-params">*popenargs, timeout=<span class="hljs-literal">None</span>, **kwargs</span>):<br>    <span class="hljs-keyword">if</span> <span class="hljs-string">&#x27;stdout&#x27;</span> <span class="hljs-keyword">in</span> kwargs:<br>        <span class="hljs-keyword">raise</span> ValueError(<span class="hljs-string">&#x27;stdout argument not allowed, it will be overridden.&#x27;</span>)<br><br>    <span class="hljs-keyword">if</span> <span class="hljs-string">&#x27;input&#x27;</span> <span class="hljs-keyword">in</span> kwargs <span class="hljs-keyword">and</span> kwargs[<span class="hljs-string">&#x27;input&#x27;</span>] <span class="hljs-keyword">is</span> <span class="hljs-literal">None</span>:<br>        <span class="hljs-comment"># Explicitly passing input=None was previously equivalent to passing an</span><br>        <span class="hljs-comment"># empty string. That is maintained here for backwards compatibility.</span><br>        <span class="hljs-keyword">if</span> kwargs.get(<span class="hljs-string">&#x27;universal_newlines&#x27;</span>) <span class="hljs-keyword">or</span> kwargs.get(<span class="hljs-string">&#x27;text&#x27;</span>):<br>            empty = <span class="hljs-string">&#x27;&#x27;</span><br>        <span class="hljs-keyword">else</span>:<br>            empty = <span class="hljs-string">b&#x27;&#x27;</span><br>        kwargs[<span class="hljs-string">&#x27;input&#x27;</span>] = empty<br><br>    <span class="hljs-keyword">return</span> run(*popenargs, stdout=PIPE, timeout=timeout, check=<span class="hljs-literal">True</span>,<br>               **kwargs).stdout<br></code></pre></td></tr></table></figure>
+
+<p>可以看到这里本质上是调用了run函数，只不过这里最后返回的是命令执行结果，而不是<code>CompletedProcess对象</code>。所以我们直接调用<code>subprocess.check_output(&#39;whoami&#39;，text=True)</code>就可以以字符串形式返回命令执行结果。没有将text参数设置为True，返回的就是字节串形式。</p>
+<h3 id="pty模块"><a href="#pty模块" class="headerlink" title="pty模块"></a>pty模块</h3><p>pty模块在windows上面不可以使用，因为这个模块依赖于tty和termios模块，这两个模块仅在Unix-like系统上可以使用。</p>
+<h4 id="spawn函数"><a href="#spawn函数" class="headerlink" title="spawn函数"></a>spawn函数</h4><p>看一下源码：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">def spawn(argv, master_read=_read, stdin_read=_read):<br>    &quot;&quot;&quot;Create a spawned process.&quot;&quot;&quot;<br>    if type(argv) == type(&#x27;&#x27;):<br>        argv = (argv,)<br>    sys.audit(&#x27;pty.spawn&#x27;, argv)<br>    pid, master_fd = fork()<br>    if pid == CHILD:<br>        os.execlp(argv[0], *argv)<br>    try:<br>        mode = tty.tcgetattr(STDIN_FILENO)<br>        tty.setraw(STDIN_FILENO)<br>        restore = 1<br>    except tty.error:    # This is the same as termios.error<br>        restore = 0<br>    try:<br>        _copy(master_fd, master_read, stdin_read)<br>    except OSError:<br>        if restore:<br>            tty.tcsetattr(STDIN_FILENO, tty.TCSAFLUSH, mode)<br><br>    os.close(master_fd)<br>    return os.waitpid(pid, 0)[1]<br></code></pre></td></tr></table></figure>
+
+<p>这个函数会创建一个子进程，并在伪终端中运行指定的命令。可以看到这个函数就是调用了<code>os.execlp</code>函数。</p>
+<p>这个函数既可以接收字符串，也可以接受元组，如果传入的是字符串，他还会将他转换为元组。所以我们直接使用元组即可，像<code>ls -l</code>这种，你直接按照字符串传递进去他是不能正常执行的，应该这样<code>pty.spawn((&#39;ls&#39;,&#39;-l&#39;))</code>。</p>
+<p>这个函数的返回值是子进程退出的状态码。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>以上的总结是针对python3环境的，我们可以看到主要的命令执行模块就是os和subprocess，一般黑名单中也是针对这两个进行过滤。而其中pty模块和nt模块（posix模块）比较少见，容易疏漏。特别是后者，因为在不同操作系统中是不一样的，容易出错。</p>
+<p>本来这篇文章还想要介绍一下python中的代码执行函数和高阶函数（可以接受别的函数作为参数，并返回一个函数），但是考虑到篇幅和普遍性，这里就没有继续介绍。而且像高阶函数里面还是要接收其他命令执行函数作为参数才能执行命令的，只有在pickle反序列化中使用<code>find_class()</code>来进行黑名单过滤时，高级函数才能够发挥绕过的作用。</p>
+<p>最后，其实在ctf的题目中我们很多时候是通过变形去绕过过滤，所以这里浅尝即止。</p>
+
+<div class="article-footer fs14">
+    <section id="license">
+      <div class="header"><span>许可协议</span></div>
+      <div class="body"><p>本文采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">署名-非商业性使用-相同方式共享 4.0 国际</a> 许可协议，转载请注明出处。</p>
+</div>
+    </section>
+    </div>
+</article>
+<div class="related-wrap" id="read-next"><section class="body"><div class="item" id="prev"></div><div class="item" id="next"><div class="note">较早文章</div><a href="/2025/01/28/php-filter%E5%8D%8F%E8%AE%AE%E7%9A%84%E5%A6%99%E7%94%A8/">php://filter协议的妙用</a></div></section></div>
+
+<div class="related-wrap" id="related-posts"></div>
+
+
+
+
+<footer class="page-footer footnote"><hr><div class="text"><center>
+<span>
+© 2024
+<a style="font-weight: bold;  auto;" target="_blank" rel="noopener" href="https://github.com/AAAA-l">AAAAl</a>
+使用 <a style="font-weight: bold;  auto;" target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.29.1">Stellar1.29.1</a>
+创建
+</span>
+<br>
+<!--不蒜子计数器-->
+<script async="" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<!--添加一个访问量-->
+<span>总访问 <span id="busuanzi_value_site_pv" style="font-weight: bold;">113701</span> 次 | 本页访问 <span id="busuanzi_value_page_pv" style="font-weight: bold;">326</span> 次</span>
+</br>
+<span id="runtime_span"></span>
+
+<script type="text/javascript">
+  document.addEventListener('DOMContentLoaded', function() {
+    var runtime_span = document.getElementById('runtime_span');
+
+    function show_runtime() {
+      // 调用定时器
+      setTimeout(show_runtime, 1000);
+
+      var seconds = 1000;
+      var minutes = seconds * 60;
+      var hours = minutes * 60;
+      var days = hours * 24;
+      var years = days * 365;
+
+      var today = new Date();
+      var todayYear = today.getFullYear();
+      var todayMonth = today.getMonth();
+      var todayDate = today.getDate();
+      var todayHour = today.getHours();
+      var todayMinute = today.getMinutes();
+      var todaySecond = today.getSeconds();
+
+      var t1 = Date.UTC(2024, 11, 23, 0, 0, 0); // UTC时间，月份从0开始
+      var t2 = Date.UTC(todayYear, todayMonth, todayDate, todayHour, todayMinute, todaySecond);
+      var diff = t2 - t1;
+
+      var diffYears = Math.floor(diff / years);
+      var diffDays = Math.floor((diff / days) - diffYears * 365);
+      var diffHours = Math.floor((diff - (diffYears * 365 + diffDays) * days) / hours);
+      var diffMinutes = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours) / minutes);
+      var diffSeconds = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours - diffMinutes * minutes) / seconds);
+
+      // 更新显示时间的span元素内容
+      runtime_span.innerHTML = "🦉营业：" + diffYears + " 年 " + diffDays + " 天 " + diffHours + " 小时 " + diffMinutes + " 分钟 " + diffSeconds + " 秒🦉";
+    }
+
+    show_runtime(); // 初次调用函数以启动定时器
+  });
+</script>
+</center>
+</div></footer>
+<div class="main-mask" onclick="sidebar.dismiss()"></div></div><aside class="l_right">
+<div class="widgets">
+
+
+
+<widget class="widget-wrapper toc" id="data-toc" collapse="false"><div class="widget-header dis-select"><span class="name">本文目录</span><a class="cap-action" onclick="sidebar.toggleTOC()" ><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></a></div><div class="widget-body"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C"><span class="toc-text">命令执行</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#os%E6%A8%A1%E5%9D%97"><span class="toc-text">os模块</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#system%E5%87%BD%E6%95%B0"><span class="toc-text">system函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#popen%E5%87%BD%E6%95%B0"><span class="toc-text">popen函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#execlp"><span class="toc-text">execlp</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#nt%E6%A8%A1%E5%9D%97%E6%88%96%E8%80%85posix%E6%A8%A1%E5%9D%97"><span class="toc-text">nt模块或者posix模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#subprocess%E6%A8%A1%E5%9D%97"><span class="toc-text">subprocess模块</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Popen%E7%B1%BB"><span class="toc-text">Popen类</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#run%E5%87%BD%E6%95%B0"><span class="toc-text">run函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#call%E5%87%BD%E6%95%B0"><span class="toc-text">call函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#check-call%E5%87%BD%E6%95%B0"><span class="toc-text">check_call函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#check-output%E5%87%BD%E6%95%B0"><span class="toc-text">check_output函数</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#pty%E6%A8%A1%E5%9D%97"><span class="toc-text">pty模块</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#spawn%E5%87%BD%E6%95%B0"><span class="toc-text">spawn函数</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-text">小结</span></a></li></ol></div><div class="widget-footer">
+
+<a class="top" onclick="util.scrollTop()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2c4.714 0 7.071 0 8.535 1.464C22 4.93 22 7.286 22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12Z"/><path stroke-linecap="round" stroke-linejoin="round" d="m9 15.5l3-3l3 3m-6-4l3-3l3 3"/></g></svg><span>回到顶部</span></a></div></widget>
+</div></aside><div class='float-panel blur'>
+  <button type='button' style='display:none' class='laptop-only rightbar-toggle mobile' onclick='sidebar.rightbar()'>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
+  </button>
+  <button type='button' style='display:none' class='mobile-only leftbar-toggle mobile' onclick='sidebar.leftbar()'>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 11c0-3.771 0-5.657 1.172-6.828C4.343 3 6.229 3 10 3h4c3.771 0 5.657 0 6.828 1.172C22 5.343 22 7.229 22 11v2c0 3.771 0 5.657-1.172 6.828C19.657 21 17.771 21 14 21h-4c-3.771 0-5.657 0-6.828-1.172C2 18.657 2 16.771 2 13z"/><path id="sep" stroke-linecap="round" d="M5.5 10h6m-5 4h4m4.5 7V3"/></g></svg>
+  </button>
+</div>
+</div><div class="scripts">
+<script type="text/javascript">
+  const ctx = {
+    date_suffix: {
+      just: `刚刚`,
+      min: `分钟前`,
+      hour: `小时前`,
+      day: `天前`,
+    },
+    root : `/`,
+  };
+
+  // required plugins (only load if needs)
+  if (`local_search`) {
+    ctx.search = {};
+    ctx.search.service = `local_search`;
+    if (ctx.search.service == 'local_search') {
+      let service_obj = Object.assign({}, `{"field":"all","path":"/search.json","content":true,"codeblock":false,"sort":"-date"}`);
+      ctx.search[ctx.search.service] = service_obj;
+    }
+  }
+  const def = {
+    avatar: `https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/3442075.svg`,
+    cover: `https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/cover/76b86c0226ffd.svg`,
+  };
+  const deps = {
+    jquery: `https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js`,
+    marked: `https://cdn.jsdelivr.net/npm/marked@13.0.1/lib/marked.umd.min.js`
+  }
+  
+
+</script>
+
+<script type="text/javascript">
+  const utils = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    css: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    js: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = ctx.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    jq: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        utils.js(deps.jquery).then(fn)
+      } else {
+        fn()
+      }
+    },
+    
+    onLoading: (el) => {
+      if (el) {
+        $(el).append('<div class="loading-wrap"><svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"><path stroke-dasharray="60" stroke-dashoffset="60" stroke-opacity=".3" d="M12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="1.3s" values="60;0"/></path><path stroke-dasharray="15" stroke-dashoffset="15" d="M12 3C16.9706 3 21 7.02944 21 12"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.3s" values="15;0"/><animateTransform attributeName="transform" dur="1.5s" repeatCount="indefinite" type="rotate" values="0 12 12;360 12 12"/></path></g></svg></div>');
+      }
+    },
+    onLoadSuccess: (el) => {
+      if (el) {
+        $(el).find('.loading-wrap').remove();
+      }
+    },
+    onLoadFailure: (el) => {
+      if (el) {
+        $(el).find('.loading-wrap svg').remove();
+        $(el).find('.loading-wrap').append('<svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path stroke-dasharray="60" stroke-dashoffset="60" d="M12 3L21 20H3L12 3Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.5s" values="60;0"/></path><path stroke-dasharray="6" stroke-dashoffset="6" d="M12 10V14"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.6s" dur="0.2s" values="6;0"/></path></g><circle cx="12" cy="17" r="1" fill="currentColor" fill-opacity="0"><animate fill="freeze" attributeName="fill-opacity" begin="0.8s" dur="0.4s" values="0;1"/></circle></svg>');
+        $(el).find('.loading-wrap').addClass('error');
+      }
+    },
+    request: (el, url, callback, onFailure) => {
+      let retryTimes = 3;
+      utils.onLoading(el);
+      function req() {
+        return new Promise((resolve, reject) => {
+          let status = 0; // 0 等待 1 完成 2 超时
+          let timer = setTimeout(() => {
+            if (status === 0) {
+              status = 2;
+              timer = null;
+              reject('请求超时');
+              if (retryTimes == 0) {
+                onFailure();
+              }
+            }
+          }, 5000);
+          fetch(url).then(function(response) {
+            if (status !== 2) {
+              clearTimeout(timer);
+              resolve(response);
+              timer = null;
+              status = 1;
+            }
+            if (response.ok) {
+              return response.json();
+            }
+            throw new Error('Network response was not ok.');
+          }).then(function(data) {
+            retryTimes = 0;
+            utils.onLoadSuccess(el);
+            callback(data);
+          }).catch(function(error) {
+            if (retryTimes > 0) {
+              retryTimes -= 1;
+              setTimeout(() => {
+                req();
+              }, 5000);
+            } else {
+              utils.onLoadFailure(el);
+              onFailure();
+            }
+          });
+        });
+      }
+      req();
+    },
+  };
+</script>
+
+<script>
+  const sidebar = {
+    leftbar: () => {
+      if (l_body) {
+        l_body.toggleAttribute('leftbar');
+        l_body.removeAttribute('rightbar');
+      }
+    },
+    rightbar: () => {
+      if (l_body) {
+        l_body.toggleAttribute('rightbar');
+        l_body.removeAttribute('leftbar');
+      }
+    },
+    dismiss: () => {
+      if (l_body) {
+        l_body.removeAttribute('leftbar');
+        l_body.removeAttribute('rightbar');
+      }
+    },
+    toggleTOC: () => {
+      document.querySelector('#data-toc').classList.toggle('collapse');
+    }
+  }
+</script>
+<script type="text/javascript">
+  (() => {
+    const tagSwitchers = document.querySelectorAll('.tag-subtree.parent-tag > a > .tag-switcher-wrapper')
+    for (const tagSwitcher of tagSwitchers) {
+      tagSwitcher.addEventListener('click', (e) => {
+        const parent = e.target.closest('.tag-subtree.parent-tag')
+        parent.classList.toggle('expanded')
+        e.preventDefault()
+      })
+    }
+
+    // Get active tag from query string, then activate it.
+    const urlParams = new URLSearchParams(window.location.search)
+    const activeTag = urlParams.get('tag')
+    if (activeTag) {
+      let tag = document.querySelector(`.tag-subtree[data-tag="${activeTag}"]`)
+      if (tag) {
+        tag.querySelector('a').classList.add('active')
+        
+        while (tag) {
+          tag.classList.add('expanded')
+          tag = tag.parentElement.closest('.tag-subtree.parent-tag')
+        }
+      }
+    }
+  })()
+</script>
+
+
+<!-- required -->
+<script src="/js/main.js?v=1.29.1" defer></script>
+
+<script type="text/javascript">
+  const applyTheme = (theme) => {
+    if (theme === 'auto') {
+      document.documentElement.removeAttribute('data-theme')
+    } else {
+      document.documentElement.setAttribute('data-theme', theme)
+    }
+
+    applyThemeToGiscus(theme)
+  }
+
+  const applyThemeToGiscus = (theme) => {
+    theme = theme === 'auto' ? 'preferred_color_scheme' : theme
+
+    const cmt = document.getElementById('giscus')
+    if (cmt) {
+      // This works before giscus load.
+      cmt.setAttribute('data-theme', theme)
+    }
+
+    const iframe = document.querySelector('#comments > section.giscus > iframe')
+    if (iframe) {
+      // This works after giscus loaded.
+      const src = iframe.src
+      const newSrc = src.replace(/theme=[\w]+/, `theme=${theme}`)
+      iframe.src = newSrc
+    }
+  }
+
+  const switchTheme = () => {
+    // light -> dark -> auto -> light -> ...
+    const currentTheme = document.documentElement.getAttribute('data-theme')
+    let newTheme;
+    switch (currentTheme) {
+      case 'light':
+        newTheme = 'dark'
+        break
+      case 'dark':
+        newTheme = 'auto'
+        break
+      default:
+        newTheme = 'light'
+    }
+    applyTheme(newTheme)
+    window.localStorage.setItem('Stellar.theme', newTheme)
+
+    const messages = {
+      light: `切换到浅色模式`,
+      dark: `切换到深色模式`,
+      auto: `切换到跟随系统配色`,
+    }
+    hud?.toast?.(messages[newTheme])
+  }
+
+  (() => {
+    // Apply user's preferred theme, if any.
+    const theme = window.localStorage.getItem('Stellar.theme')
+    if (theme !== null) {
+      applyTheme(theme)
+    }
+  })()
+</script>
+
+
+<!-- optional -->
+
+
+
+<script defer>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    ctx.services = Object.assign({}, JSON.parse(`{"mdrender":{"js":"/js/services/mdrender.js"},"siteinfo":{"js":"/js/services/siteinfo.js","api":null},"ghinfo":{"js":"/js/services/ghinfo.js"},"sites":{"js":"/js/services/sites.js"},"friends":{"js":"/js/services/friends.js"},"timeline":{"js":"/js/services/timeline.js"},"fcircle":{"js":"/js/services/fcircle.js"},"weibo":{"js":"/js/services/weibo.js"},"memos":{"js":"/js/services/memos.js"}}`));
+    for (let id of Object.keys(ctx.services)) {
+      const js = ctx.services[id].js;
+      if (id == 'siteinfo') {
+        ctx.cardlinks = document.querySelectorAll('a.link-card[cardlink]');
+        if (ctx.cardlinks?.length > 0) {
+          utils.js(js, { defer: true }).then(function () {
+            setCardLink(ctx.cardlinks);
+          });
+        }
+      } else {
+        const els = document.getElementsByClassName(`ds-${id}`);
+        if (els?.length > 0) {
+          utils.jq(() => {
+            if (id == 'timeline' || 'memos' || 'marked') {
+              utils.js(deps.marked).then(function () {
+                utils.js(js, { defer: true });
+              });
+            } else {
+              utils.js(js, { defer: true });
+            }
+          });
+        }
+      }
+    }
+  });
+</script>
+
+<script>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    ctx.search = {
+      path: `/search.json`,
+    }
+    utils.js('/js/search/local-search.js', { defer: true });
+  });
+</script><script>
+  window.FPConfig = {
+    delay: 0,
+    ignoreKeywords: [],
+    maxRPS: 5,
+    hoverDelay: 25
+  };
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/flying-pages@2/flying-pages.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@19.1.3/dist/lazyload.min.js"></script>
+<script>
+  // https://www.npmjs.com/package/vanilla-lazyload
+  // Set the options globally
+  // to make LazyLoad self-initialize
+  window.lazyLoadOptions = {
+    elements_selector: ".lazy",
+  };
+  // Listen to the initialization event
+  // and get the instance of LazyLoad
+  window.addEventListener(
+    "LazyLoad::Initialized",
+    function (event) {
+      window.lazyLoadInstance = event.detail.instance;
+    },
+    false
+  );
+  document.addEventListener('DOMContentLoaded', function () {
+    window.lazyLoadInstance?.update();
+  });
+</script><script>
+  ctx.fancybox = {
+    selector: `.timenode p>img`,
+    css: `https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css`,
+    js: `https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js`
+  };
+  var selector = '[data-fancybox]:not(.error)';
+  if (ctx.fancybox.selector) {
+    selector += `, ${ctx.fancybox.selector}`
+  }
+  var needFancybox = document.querySelectorAll(selector).length !== 0;
+  if (!needFancybox) {
+    const els = document.getElementsByClassName('ds-memos');
+    if (els != undefined && els.length > 0) {
+      needFancybox = true;
+    }
+  }
+  if (needFancybox) {
+    utils.css(ctx.fancybox.css);
+    utils.js(ctx.fancybox.js, { defer: true }).then(function () {
+      Fancybox.bind(selector, {
+        hideScrollbar: false,
+        Thumbs: {
+          autoStart: false,
+        },
+        caption: (fancybox, slide) => {
+          return slide.triggerEl.alt || slide.triggerEl.dataset.caption || null
+        }
+      });
+    })
+  }
+</script>
+<script>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    const swiper_api = document.getElementById('swiper-api');
+    if (swiper_api != undefined) {
+      utils.css(`https://unpkg.com/swiper@10.3.1/swiper-bundle.min.css`);
+      utils.js(`https://unpkg.com/swiper@10.3.1/swiper-bundle.min.js`, { defer: true }).then(function () {
+        const effect = swiper_api.getAttribute('effect') || '';
+        var swiper = new Swiper('.swiper#swiper-api', {
+          slidesPerView: 'auto',
+          spaceBetween: 8,
+          centeredSlides: true,
+          effect: effect,
+          rewind: true,
+          pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+          },
+          navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+          },
+        });
+      })
+    }
+  });
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    window.codeElements = document.querySelectorAll('.code');
+    if (window.codeElements.length > 0) {
+      ctx.copycode = {
+        default_text: `Copy`,
+        success_text: `Copied`,
+        toast: `复制成功`,
+      };
+      utils.js('/js/plugins/copycode.js');
+    }
+  });
+</script>
+
+
+<!-- inject -->
+
+</div></body></html>
