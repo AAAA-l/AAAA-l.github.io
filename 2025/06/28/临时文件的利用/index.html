@@ -1,0 +1,731 @@
+
+<!DOCTYPE html><html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.29.1" theme-name="Stellar" theme-version="1.29.1">
+  
+  <meta name="generator" content="Hexo 7.3.0">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000">
+  <meta name="theme-color" content="#f9fafb">
+  
+  <title>临时文件的利用 - AAAAl'blog</title>
+
+  
+    <meta name="description" content="[TOC] 摘要在应用环境中，通常会生成各种临时文件，这些文件可能来源于应用自身，也可能由第三方组件创建。如果攻击者能够控制临时文件的内容，可能会带来安全风险。本文将介绍不同环境下临时文件的生成方式及其利用方式。 临时文件临时文件的产生语言本身机制我们对任意一个PHP文件（要求这个php文件必须存在）发送一个上传的数据包时，不管这个PHP服务后端是否有处理$_FILES的逻辑，PHP都会将用户上传">
+<meta property="og:type" content="article">
+<meta property="og:title" content="临时文件的利用">
+<meta property="og:url" content="https://aaaa-l.github.io/2025/06/28/%E4%B8%B4%E6%97%B6%E6%96%87%E4%BB%B6%E7%9A%84%E5%88%A9%E7%94%A8/">
+<meta property="og:site_name" content="AAAAl&#39;blog">
+<meta property="og:description" content="[TOC] 摘要在应用环境中，通常会生成各种临时文件，这些文件可能来源于应用自身，也可能由第三方组件创建。如果攻击者能够控制临时文件的内容，可能会带来安全风险。本文将介绍不同环境下临时文件的生成方式及其利用方式。 临时文件临时文件的产生语言本身机制我们对任意一个PHP文件（要求这个php文件必须存在）发送一个上传的数据包时，不管这个PHP服务后端是否有处理$_FILES的逻辑，PHP都会将用户上传">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://aaaa-l.github.io/%E4%B8%B4%E6%97%B6%E6%96%87%E4%BB%B6%E7%9A%84%E5%88%A9%E7%94%A8/2.png">
+<meta property="og:image" content="https://aaaa-l.github.io/%E4%B8%B4%E6%97%B6%E6%96%87%E4%BB%B6%E7%9A%84%E5%88%A9%E7%94%A8/1.png">
+<meta property="og:image" content="https://aaaa-l.github.io/%E4%B8%B4%E6%97%B6%E6%96%87%E4%BB%B6%E7%9A%84%E5%88%A9%E7%94%A8/3.png">
+<meta property="og:image" content="https://aaaa-l.github.io/%E4%B8%B4%E6%97%B6%E6%96%87%E4%BB%B6%E7%9A%84%E5%88%A9%E7%94%A8/2.jpg">
+<meta property="og:image" content="https://aaaa-l.github.io/%E4%B8%B4%E6%97%B6%E6%96%87%E4%BB%B6%E7%9A%84%E5%88%A9%E7%94%A8/3.jpg">
+<meta property="article:published_time" content="2025-06-28T01:27:40.000Z">
+<meta property="article:modified_time" content="2025-07-31T04:59:15.946Z">
+<meta property="article:author" content="AAAAl">
+<meta property="article:tag" content="临时文件">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://aaaa-l.github.io/%E4%B8%B4%E6%97%B6%E6%96%87%E4%BB%B6%E7%9A%84%E5%88%A9%E7%94%A8/2.png">
+  
+  
+  
+  <meta name="keywords" content="临时文件">
+
+  <!-- feed -->
+  
+
+  <link rel="stylesheet" href="/css/main.css?v=1.29.1">
+
+  
+    <link rel="shortcut icon" href="/assets/images/avatar.jpg">
+  
+
+  
+    
+<link rel="stylesheet" href="https://gcore.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/atom-one-dark.min.css">
+
+  
+
+  
+</head>
+<body><div class="sitebg"><div class="siteblur"></div></div>
+
+<div class="l_body s:aa content tech" id="start" layout="post" ><aside class="l_left"><div class="leftbar-container">
+
+
+<header class="header"><div class="logo-wrap"><a class="avatar" href="/about/"><div class="bg" style="opacity:0;background-image:url(https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/rainbow64@3x.webp);"></div><img no-lazy class="avatar" src="/assets/images/avatar.jpg" onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="title" href="/"><div class="main" ff="title">AAAAl'blog</div></a></div></header>
+
+<div class="nav-area">
+<div class="search-wrapper" id="search-wrapper"><form class="search-form"><a class="search-button" onclick="document.getElementById(&quot;search-input&quot;).focus();"><svg t="1705074644177" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></a><input type="text" class="search-input" id="search-input" placeholder="站内搜索"></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div>
+
+
+<nav class="menu dis-select"><a class="nav-item" title="首页" href="/" style="color:#1BCDFC"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M5.879 2.879C5 3.757 5 5.172 5 8v8c0 2.828 0 4.243.879 5.121C6.757 22 8.172 22 11 22h2c2.828 0 4.243 0 5.121-.879C19 20.243 19 18.828 19 16V8c0-2.828 0-4.243-.879-5.121C17.243 2 15.828 2 13 2h-2c-2.828 0-4.243 0-5.121.879M8.25 17a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1-.75-.75M9 12.25a.75.75 0 0 0 0 1.5h6a.75.75 0 0 0 0-1.5zM8.25 9A.75.75 0 0 1 9 8.25h6a.75.75 0 0 1 0 1.5H9A.75.75 0 0 1 8.25 9" clip-rule="evenodd"/><path fill="currentColor" d="M5.235 4.058C5 4.941 5 6.177 5 8v8c0 1.823 0 3.058.235 3.942L5 19.924c-.975-.096-1.631-.313-2.121-.803C2 18.243 2 16.828 2 14v-4c0-2.829 0-4.243.879-5.121c.49-.49 1.146-.707 2.121-.803zm13.53 15.884C19 19.058 19 17.822 19 16V8c0-1.823 0-3.059-.235-3.942l.235.018c.975.096 1.631.313 2.121.803C22 5.757 22 7.17 22 9.999v4c0 2.83 0 4.243-.879 5.122c-.49.49-1.146.707-2.121.803z" opacity=".5"/></svg></a><a class="nav-item" title="分类" href="/categories/" style="color:#3DC550"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M14.25 4.48v3.057c0 .111 0 .27.02.406a.936.936 0 0 0 .445.683a.96.96 0 0 0 .783.072c.13-.04.272-.108.378-.159L17 8.005l1.124.534c.106.05.248.119.378.16a.958.958 0 0 0 .783-.073a.936.936 0 0 0 .444-.683c.021-.136.021-.295.021-.406V3.031c.113-.005.224-.01.332-.013C21.154 2.98 22 3.86 22 4.933v11.21c0 1.112-.906 2.01-2.015 2.08c-.97.06-2.108.179-2.985.41c-1.082.286-1.99 1.068-3.373 1.436c-.626.167-1.324.257-1.627.323V5.174c.32-.079 1.382-.203 1.674-.371c.184-.107.377-.216.576-.323m5.478 8.338a.75.75 0 0 1-.546.91l-4 1a.75.75 0 0 1-.364-1.456l4-1a.75.75 0 0 1 .91.546" clip-rule="evenodd"/><path fill="currentColor" d="M18.25 3.151c-.62.073-1.23.18-1.75.336a8.2 8.2 0 0 0-.75.27v3.182l.75-.356l.008-.005a1.13 1.13 0 0 1 .492-.13c.047 0 .094.004.138.01c.175.029.315.1.354.12l.009.005l.749.356V3.647z"/><path fill="currentColor" d="M12 5.214c-.334-.064-1.057-.161-1.718-.339C8.938 4.515 8.05 3.765 7 3.487c-.887-.234-2.041-.352-3.018-.412C2.886 3.007 2 3.9 2 4.998v11.146c0 1.11.906 2.01 2.015 2.079c.97.06 2.108.179 2.985.41c.486.129 1.216.431 1.873.726c1.005.451 2.052.797 3.127 1.034z" opacity=".5"/><path fill="currentColor" d="M4.273 12.818a.75.75 0 0 1 .91-.545l4 1a.75.75 0 1 1-.365 1.455l-4-1a.75.75 0 0 1-.545-.91m.909-4.545a.75.75 0 1 0-.364 1.455l4 1a.75.75 0 0 0 .364-1.455z"/></svg></a><a class="nav-item" title="关于" href="/about/" style="color:#FA6400"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M20 12a8 8 0 1 1-16 0a8 8 0 0 1 16 0" opacity=".5"/><path fill="currentColor" d="M17.712 5.453c1.047-.193 2.006-.259 2.797-.152c.77.103 1.536.393 1.956 1.064c.446.714.312 1.542-.012 2.258c-.33.728-.918 1.499-1.672 2.268c-1.516 1.547-3.836 3.226-6.597 4.697c-2.763 1.472-5.495 2.484-7.694 2.92c-1.095.217-2.098.299-2.923.201c-.8-.095-1.6-.383-2.032-1.075c-.47-.752-.296-1.63.07-2.379c.375-.768 1.032-1.586 1.872-2.403L4 12.416c0 .219.083.71.168 1.146c.045.23.09.444.123.596c-.652.666-1.098 1.263-1.339 1.756c-.277.567-.208.825-.145.925c.072.116.305.305.937.38c.609.073 1.44.018 2.455-.183c2.02-.4 4.613-1.351 7.28-2.772c2.667-1.42 4.85-3.015 6.23-4.423c.694-.707 1.15-1.334 1.377-1.836c.233-.515.167-.75.107-.844c-.07-.112-.289-.294-.883-.374c-.542-.072-1.272-.041-2.163.112L16.87 5.656c.338-.101.658-.17.842-.203"/></svg></a><a class="nav-item" title="更多" href="/more/" style="color:#F44336"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="m13.629 20.472l-.542.916c-.483.816-1.69.816-2.174 0l-.542-.916c-.42-.71-.63-1.066-.968-1.262c-.338-.197-.763-.204-1.613-.219c-1.256-.021-2.043-.098-2.703-.372a5 5 0 0 1-2.706-2.706C2 14.995 2 13.83 2 11.5v-1c0-3.273 0-4.91.737-6.112a5 5 0 0 1 1.65-1.651C5.59 2 7.228 2 10.5 2h3c3.273 0 4.91 0 6.113.737a5 5 0 0 1 1.65 1.65C22 5.59 22 7.228 22 10.5v1c0 2.33 0 3.495-.38 4.413a5 5 0 0 1-2.707 2.706c-.66.274-1.447.35-2.703.372c-.85.015-1.275.022-1.613.219c-.338.196-.548.551-.968 1.262" opacity=".5"/><path fill="currentColor" d="M10.99 14.308c-1.327-.978-3.49-2.84-3.49-4.593c0-2.677 2.475-3.677 4.5-1.609c2.025-2.068 4.5-1.068 4.5 1.609c0 1.752-2.163 3.615-3.49 4.593c-.454.335-.681.502-1.01.502c-.329 0-.556-.167-1.01-.502"/></svg></a></nav>
+</div>
+<div class="widgets">
+
+
+<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/2025/08/03/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/"><span class="title">内网穿透</span></a><a class="item title" href="/2025/07/30/Socket%E5%92%8CSOCKS%E4%BB%8B%E7%BB%8D/"><span class="title">Socket和SOCKS介绍</span></a><a class="item title" href="/2025/01/28/php-filter%E5%8D%8F%E8%AE%AE%E7%9A%84%E5%A6%99%E7%94%A8/"><span class="title">php://filter协议的妙用</span></a><a class="item title" href="/2025/06/28/%E4%B8%B4%E6%97%B6%E6%96%87%E4%BB%B6%E7%9A%84%E5%88%A9%E7%94%A8/"><span class="title">临时文件的利用</span></a><a class="item title" href="/2025/07/11/%E6%8F%90%E6%9D%83/"><span class="title">提权</span></a><a class="item title" href="/2025/06/18/%E5%88%A9%E7%94%A8%E7%BC%93%E5%AD%98%E8%BF%9B%E8%A1%8C%E6%94%BB%E5%87%BB/"><span class="title">利用缓存进行攻击</span></a><a class="item title" href="/2025/02/02/python%E4%B8%AD%E7%9A%84%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E5%87%BD%E6%95%B0/"><span class="title">python中的命令执行函数</span></a><a class="item title" href="/2024/12/30/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E6%97%A0%E5%9B%9E%E6%98%BE/"><span class="title">flask中的ssti注入-无回显</span></a><a class="item title" href="/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87/"><span class="title">flask中的ssti注入-绕过</span></a><a class="item title" href="/2024/12/23/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E5%89%8D%E7%BD%AE%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"><span class="title">flask中的ssti注入-前置基础知识</span></a></div></widget>
+</div>
+<footer class="footer dis-select"><div class="social-wrap"><a class="social" href="https://github.com/AAAA-l" target="_blank" rel="external nofollow noopener noreferrer"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/08a41b181ce68.svg"></a></div></footer>
+</div></aside><div class="l_main" id="main">
+
+
+
+
+
+<div class="article banner top"><img class="bg lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/assets/images/more.jpg">
+  <div class="content">
+    <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
+<span class="sep"></span><a class="cap breadcrumb" href="/">文章</a><span class="sep"></span><a class="cap breadcrumb-link" href="/categories/%E6%94%BB%E5%87%BB%E6%80%9D%E8%B7%AF/">攻击思路</a></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2025-06-28T01:27:40.000Z">2025-06-28</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2025-07-31T04:59:15.946Z">2025-07-31</time></span></div></div></div>
+    
+  </div>
+  </div><article class="md-text content"><p>[TOC]</p>
+<h6 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h6><p>在应用环境中，通常会生成各种临时文件，这些文件可能来源于应用自身，也可能由第三方组件创建。如果攻击者能够控制临时文件的内容，可能会带来安全风险。本文将介绍不同环境下临时文件的生成方式及其利用方式。</p>
+<h2 id="临时文件"><a href="#临时文件" class="headerlink" title="临时文件"></a>临时文件</h2><h3 id="临时文件的产生"><a href="#临时文件的产生" class="headerlink" title="临时文件的产生"></a>临时文件的产生</h3><h4 id="语言本身机制"><a href="#语言本身机制" class="headerlink" title="语言本身机制"></a>语言本身机制</h4><p>我们对任意一个PHP文件（要求这个php文件必须存在）发送一个上传的数据包时，不管这个PHP服务后端是否有处理$_FILES的逻辑，PHP都会将用户上传的数据先保存到一个临时文件中，这个文件一般位于系统临时目录，文件名是php开头，后面跟6个随机字符。</p>
+<p>这样做的原因是方便用户直接通过<code>S_FILES</code>访问上传文件，不用自己解析<code>multipart/form-data</code>格式，应用在不同操作系统平台运行也能够得到兼容，还避免了内存溢出。</p>
+<h4 id="第三方服务"><a href="#第三方服务" class="headerlink" title="第三方服务"></a>第三方服务</h4><p>像 Python 的 Flask、Django 框架，Java 的 Tomcat、Weblogic 服务器，以及 PHP 配合 Nginx 等 Web 服务，这些第三方服务在处理文件上传时的临时文件机制基本类似：通常会先将上传内容存储在内存中，当数据量超过一定阈值后，再将其缓存到临时文件中，并在请求处理结束后自动删除这些临时文件。</p>
+<p>对于PHP 配合 Nginx 的 Web 服务在php响应数据超过一定阈值时也会产生临时文件，其他服务暂时没有研究过，不知道是否也存在这种情况。</p>
+<p>不过，在我研究 Python 相关框架时，发现其实现方式与 Java、PHP 等语言的服务相比还是存在一些差异，且在实际安全利用方面几乎没有可乘之机。由于个人能力有限，尚未完全深入理解其中的细节。</p>
+<h4 id="应用本身处理逻辑"><a href="#应用本身处理逻辑" class="headerlink" title="应用本身处理逻辑"></a>应用本身处理逻辑</h4><p>在一些具有图片上传功能的应用中，通常会先将上传的图片保存到临时目录，然后再对文件进行检测和二次处理（如格式转换、缩略图生成等）。如果检测是在文件落地之后进行的，就可能存在一个条件竞争的时间窗口，攻击者有机会在检测前利用未校验的临时文件发起攻击。实际上，凡是存在文件上传功能的应用，尤其是对文件内容进行二次处理的场景，都有可能存在这种机制。关键在于，应用是否在文件写入磁盘之前就完成了严格的安全检测。</p>
+<h4 id="session会话"><a href="#session会话" class="headerlink" title="session会话"></a>session会话</h4><p>有时，为了保持用户的会话状态，应用会将 session 会话数据进行持久化。这一功能通常由第三方服务或框架实现，且往往需要我们额外配置才能启用。例如，Tomcat 的 <a target="_blank" rel="noopener" href="https://github.com/advisories/GHSA-83qj-6fr2-vhqg">CVE-2025-24813</a> 漏洞的利用条件之一，就是开启了基于文件的会话持久化。</p>
+<p>相比之下，PHP 的会话管理机制较为特殊。PHP 内置了 session 管理功能，并且在 <code>session.upload_progress.enable</code> 选项开启时（该选项在包括 Docker 在内的大多数环境下默认开启），用户上传文件的信息会被自动保存在 Session 中，而 PHP 的 Session 默认是以文件形式存储的。需要注意的是，这里session 文件在一次请求处理结束后，其内容会被自动清空（<code>session.upload_progress.cleanup</code>选项默认配置为1）。</p>
+<h3 id="获取临时文件名"><a href="#获取临时文件名" class="headerlink" title="获取临时文件名"></a>获取临时文件名</h3><p>要利用临时文件，首先需要知道其存放位置和文件名，这取决于这两者是否可预测。临时目录通常由组件配置文件指定，一般位于系统的临时目录（如 Linux 下的 <code>/tmp</code>），有时也可能随机生成。但本质上，利用方式相同。为简洁起见，后文统一只讨论临时文件名的可预测性。</p>
+<h4 id="可以预测"><a href="#可以预测" class="headerlink" title="可以预测"></a>可以预测</h4><p>当临时文件名的生成规则仅依赖于公开信息（如固定前缀、时间戳、用户可控参数或简单哈希算法）时，临时文件名是可以被预测的。例如，<code>CVE-2023-32697——sqlite jdbc RCE</code> 就是因为临时文件名由下载地址的 <code>hashCode()</code> 计算得出，因此可以提前推算出对应的文件名。再比如，PHP 保存 session 会话数据时，文件名是根据传入的 <code>PHPSESSID</code> 生成的，这也使得文件名具有可预测性。</p>
+<p>有时，临时文件名会结合系统特有文件的值和程序自身的特征生成，比如 Flask 的 pin 码计算。这种情况下，攻击者还需借助文件读取漏洞获取相关参数，再按源码逻辑计算出文件名。换句话说，这类场景下临时文件名本身并不可预测，只有结合其他漏洞才能推算出来。</p>
+<h4 id="不可以预测"><a href="#不可以预测" class="headerlink" title="不可以预测"></a>不可以预测</h4><h5 id="信息泄露"><a href="#信息泄露" class="headerlink" title="信息泄露"></a>信息泄露</h5><p>我们可以通过信息泄露获取临时文件名，这里的信息泄露不仅包括目录遍历，还包括配置文件泄露等。例如，PHP 的 phpinfo 页面会暴露上传文件的保存路径（<code>tmp_name</code>），从而让我们得知临时文件的具体位置。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/./%E4%B8%B4%E6%97%B6%E6%96%87%E4%BB%B6%E7%9A%84%E5%88%A9%E7%94%A8/2.png"></p>
+<p>再比如 Spring Web 框架中的 heapdump 泄漏，由于 Tomcat 生成的临时文件名格式为 <code>/tmp/&#123;tomcat_path&#125;/work/Tomcat/localhost/ROOT/upload_&#123;UID&#125;_&#123;UniqueId&#125;.tmp</code>，其中 UID 是类初始化后固定的随机 UUID，UniqueId 是每次上传时自增的值。通过 heapdump 泄漏，我们可以获取到当前的 UID 和 UniqueId，之后上传文件时只需将 UniqueId 加 1，即可准确预测下一个临时文件名。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/./%E4%B8%B4%E6%97%B6%E6%96%87%E4%BB%B6%E7%9A%84%E5%88%A9%E7%94%A8/1.png"></p>
+<p>有些应用会在日志文件中记录上传文件的临时路径，因此通过读取日志文件也可以获取到临时文件名。</p>
+<h5 id="爆破"><a href="#爆破" class="headerlink" title="爆破"></a>爆破</h5><p>如果没有其他信息泄露，我们只能通过爆破来获取临时文件名。但由于请求处理结束后临时文件会被立即删除，想要在文件被删除前爆破出临时文件名几乎不可能。此时有两种思路：</p>
+<ol>
+<li><p><strong>利用通配符匹配</strong><br>如果目标系统在查找文件路径时支持通配符，我们可以结合临时文件名的特征和通配符来匹配。例如，如果只匹配到我们上传的临时文件，就可以直接利用；如果匹配到多个文件，可能会报错。为此，可以将文件上传和利用合并到同一个请求包中，并根据临时文件名的特征构造通配符，不断尝试，直到只匹配到目标文件。</p>
+<ul>
+<li><p><strong>PHP 在 Windows 下的通配符</strong><br>PHP 读取 Windows 文件时，会用到 <a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-findfirstfileexw">FindFirstFileExW</a> 这个 Win32 API，该 API 支持通配符：</p>
+<ul>
+<li><code>DOS_STAR</code>（<code>&lt;</code>）：匹配0个以上字符</li>
+<li><code>DOS_QM</code>（<code>&gt;</code>）：匹配1个字符</li>
+<li><code>DOS_DOT</code>（<code>&quot;</code>）：匹配点号</li>
+</ul>
+<p>因此，在 Windows 下可以用如 <code>C:\Windows\Temp\php&lt;&lt;</code> 这样的路径来匹配临时文件名中的随机部分（由于Windows内部的一些不太明确的原因，这里一般需要用两个<code>&lt;</code>来匹配多个字符）。</p>
+</li>
+<li><p><strong>Spring 的通配符</strong><br>Spring 的 <code>ClassPathXmlApplicationContext</code> 类查找路径时也支持通配符，常用的有 <code>*</code> 和 <code>?</code>，可以用来匹配上传的恶意 XML 文件。</p>
+</li>
+<li><p><strong>Linux 下的通配符</strong><br>Linux 执行命令时也支持通配符，但既然已经能执行命令，通常就不再需要通过文件上传来利用，这类场景多见于受限的 CTF 环境，实际生产环境中利用价值有限。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>借助文件描述符</strong></p>
+<p>当进程打开一个文件时，会在 <code>/proc/pid/fd/</code> 目录下生成对应的文件描述符。如果文件被删除但未关闭，通过文件描述符仍可访问该文件。</p>
+<ul>
+<li><strong>pid 的确定</strong><br>是否需要爆破 pid 取决于应用服务器类型：<ul>
+<li><strong>Tomcat</strong>：一个 Web 应用通常对应一个进程，可以直接用 <code>/proc/self/fd/..</code>（<code>self</code> 代表当前进程）。</li>
+<li><strong>Nginx</strong>：一个 Web 应用对应多个进程（1 个 master + 多个 worker），worker 数量一般不超过 CPU 核心数。此时无法确定是哪一个 worker 进程处理了上传请求，需要对 pid 进行爆破。通常需要先通过文件读取漏洞，读取 <code>/proc/pid/cmdline</code>，找出 worker 进程的 pid，再在这些进程中爆破。其实真实环境中如果遇到这种情况就可以直接跑路了。</li>
+</ul>
+</li>
+<li><strong>文件描述符的爆破</strong><br>文件描述符是一个数字，通常可以从 20 枚举到 50，如果应用打开的资源较多，可以适当扩大范围。我们可以先在本地测试一下。</li>
+</ul>
+</li>
+</ol>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/./%E4%B8%B4%E6%97%B6%E6%96%87%E4%BB%B6%E7%9A%84%E5%88%A9%E7%94%A8/3.png">                                        </p>
+<h5 id="缓冲区溢出"><a href="#缓冲区溢出" class="headerlink" title="缓冲区溢出"></a>缓冲区溢出</h5><p>这里的情景就是临时文件名储存在了一个变量中，并且在程序运行过程中会输出临时文件名。但是我们需要在请求结束之前获取临时文件名，就可以通过传入一个大数据，使输出缓冲区溢出，提前得到文件名。这个了解即可，打ctf时可以利用一下。技巧来源<a target="_blank" rel="noopener" href="https://zeddyu.github.io/p/36c3-web-%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95/#references">这道题</a>。</p>
+<h3 id="延长临时文件的保存时间"><a href="#延长临时文件的保存时间" class="headerlink" title="延长临时文件的保存时间"></a>延长临时文件的保存时间</h3><p>因为在请求处理结束之后，临时文件就会被删除，而我们想要在文件被删除之前就进行利用，就需要想方法延长文件留存的时间。</p>
+<h4 id="使用同一个请求包"><a href="#使用同一个请求包" class="headerlink" title="使用同一个请求包"></a>使用同一个请求包</h4><p>这里并不是延长临时文件的留存时间，而是将文件利用和文件上传放在同一个请求包当中，而请求执行完成之后才会删除临时文件。但是这里就有一个要求：我们要能够直接匹配到上传的临时文件，所以这里要么临时文件名可知；要么可以借助通配符做到只匹配到临时文件（具体可以看一下<a target="_blank" rel="noopener" href="https://www.leavesongs.com/PENETRATION/webshell-without-alphanum-advanced.html?page=1#reply-list">p神的文章</a>）。</p>
+<h4 id="使程序运行错误"><a href="#使程序运行错误" class="headerlink" title="使程序运行错误"></a>使程序运行错误</h4><p>我们要做的，就是在临时文件被删除之前，让程序发生运行错误，从而阻止删除操作的执行，使临时文件得以永久保留。要实现这一点，通常需要我们的输入能够导致目标程序运行异常。然而，这种情况实际上非常罕见，因为大多数开发者都会对输入进行健壮性处理，防止程序因异常输入而崩溃。目前已知的利用方式主要是 PHP 在使用 include 时，结合 <code>php://filter</code> 触发内存错误，导致进程异常退出，不过这个技巧也没有什么实战价值。当然，如果我们有权限修改服务器配置，也可以让临时文件被保留，但这种情况更为少见。</p>
+<h4 id="使用http长连接和分块传输"><a href="#使用http长连接和分块传输" class="headerlink" title="使用http长连接和分块传输"></a>使用http长连接和分块传输</h4><p>这里就是通过延长请求的连接和处理时间来延长临时文件的留存时间。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/./%E4%B8%B4%E6%97%B6%E6%96%87%E4%BB%B6%E7%9A%84%E5%88%A9%E7%94%A8/2.jpg" alt="http长连接"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/./%E4%B8%B4%E6%97%B6%E6%96%87%E4%BB%B6%E7%9A%84%E5%88%A9%E7%94%A8/3.jpg" alt="分块传输"></p>
+<p>我们也可以通过给文件增加脏数据和使用ftp来控制文件传输等方式来延长请求时间等，但是这两个方法不具有普遍性。</p>
+<h4 id="根据应用服务器处理方式更改数据包格式"><a href="#根据应用服务器处理方式更改数据包格式" class="headerlink" title="根据应用服务器处理方式更改数据包格式"></a>根据应用服务器处理方式更改数据包格式</h4><p>可以优化为：我们可以从 HTTP 包的特性出发，结合开发者的思维进行分析：如果在请求头中将 Content-Length 设置为一个很大的值，而实际发送的数据远远小于该值，并且客户端不主动断开连接，那么服务器通常会一直等待剩余数据的到来（当然，实际情况还会受到服务器超时机制的影响）。此外，服务器在处理 multipart 请求时，可能会通过 <code>--xxxxxxxx--</code> 判断整个包是否结束，通过 <code>--xxxxxxxx</code> 判断单个文件上传是否结束。因此，我们可以利用这些特性，构造特定的请求数据包，延长服务器端临时文件的留存时间。实际上，这与 上面HTTP 长连接的思想类似。具体细节可以参考<a target="_blank" rel="noopener" href="https://xz.aliyun.com/news/17830">这篇文章</a>。</p>
+<h4 id="线程设置"><a href="#线程设置" class="headerlink" title="线程设置"></a>线程设置</h4><p>在实际利用过程中，我们可以同时设置多个上传文件的线程和多个请求利用的线程（使用大量线程来进行第二个操作），通过大量并发请求，提高利用操作在临时文件被删除前完成的概率，从而提升利用的成功率。</p>
+<h2 id="linux中获取文件内容（补充）"><a href="#linux中获取文件内容（补充）" class="headerlink" title="linux中获取文件内容（补充）"></a>linux中获取文件内容（补充）</h2><p>在Linux中，每个文件都有一个唯一的 <code>inode</code>，它标识文件在文件系统中的位置。文件系统通过目录项将文件路径映射到相应的 <code>inode</code>。<code>inode</code> 表中记录了文件的元数据，包括文件的大小、权限、所有者、修改时间以及数据块的指针。</p>
+<p>当我们查找一个文件时，首先通过文件路径找到对应的 <code>inode</code>，然后通过 <code>inode</code> 得到文件的数据块指针，从而访问文件内容。</p>
+<p>Linux 支持两种链接：<strong>硬链接</strong> 和 <strong>软链接</strong>。</p>
+<ul>
+<li><strong>硬链接</strong>：硬链接与原始文件共享相同的 <code>inode</code>，所以它们的内容是完全相同的。硬链接是多对一的关系，多个硬链接指向同一个 <code>inode</code>。<code>inode</code> 的引用计数会随着每个硬链接的创建而增加，只有当引用计数为零时，<code>inode</code> 才会被删除。删除一个硬链接只是删除了目录项中路径与 <code>inode</code> 的映射，文件的内容仍然可以通过其他硬链接访问。</li>
+<li><strong>软链接</strong>：软链接有自己的 <code>inode</code>，并且其 <code>inode</code> 存储的是原始文件的路径，而不是文件内容。当访问软链接时，系统会通过软链接存储的路径来查找原始文件。因此，软链接的 <code>inode</code> 和原始文件的 <code>inode</code> 是不同的。若原始文件被删除或路径无效，软链接会失效，成为“悬挂链接”。</li>
+</ul>
+<p>此外，文件系统中的每个文件都有一个 <strong>引用计数</strong>，表示该文件的硬链接数量。当引用计数为零时，<code>inode</code> 才会被删除。删除硬链接会减少引用计数，但不会立即删除文件内容。只有当所有硬链接和文件描述符都被关闭时，文件的内容才会被真正删除。</p>
+<p>在进程打开文件时，内核会为该文件分配一个 <strong>文件描述符</strong>。文件描述符是一个整数，它在进程的文件描述符表中指向一个文件表项。该文件表项包含文件的 <code>inode</code> 信息以及指向文件数据的指针。可以将文件描述符理解为硬链接中的路径，它允许进程通过文件描述符访问文件内容。即使文件的路径（目录项）被删除，只要文件描述符仍然存在，进程仍然可以通过文件描述符访问文件。</p>
+<p>当文件句柄关闭时，文件描述符对应的文件表项会被删除，文件的引用计数减一。如果没有其他进程持有该文件的描述符，<code>inode</code> 和数据块才会被清理。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>这篇文章具体讲解了临时文件的利用过程，但是我们也可以发现很多技巧在实际环境中很难行得通，我们应该学习的不是各种技巧，这只是一种知识面的扩展而已。我们更应该学习的是漏洞挖掘的思想和解决问题的方法。这里临时文件的产生部分讲的就是漏洞挖掘的方向，从语言本身到中间件再到应用自身逻辑；而获取临时文件名和延长临时文件的保存时间讲的就是方法论的东西，将问题进行拆解，每一个问题又从不同的方向出发。</p>
+<p>最后补充几点，一个是fd目录下面的文件描述符随着文件句柄的关闭也会消失，所以这个一般在请求处理结束之后也会消失，不要将他当成延长临时文件留存的一种手段，他更多是充当着一种帮助我们获取临时文件的角色，因为他爆破起来更加容易；另一个是我们的临时目录可能会受到<code>systemd进程</code>的影响导致利用失败（可以看一下参考文章）；最后建议仔细看一下各个参考文章，因为文章视角不同，所以很多细节没有提及。</p>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><hr>
+<p>references:</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://xz.aliyun.com/news/17830">从JDBC MySQL不出网攻击到spring临时文件利用</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.leavesongs.com/PENETRATION/springboot-xml-beans-exploit-without-network.html">ClassPathXmlApplicationContext的不出网利用</a></li>
+<li><a target="_blank" rel="noopener" href="https://su18.org/post/postgresql-jdbc-attack-and-stuff/#3-%E9%A2%98%E5%A4%96%E8%AF%9D%E5%85%B6%E4%BB%96-context">Postgresql JDBC Attack and Stuff </a></li>
+<li><a target="_blank" rel="noopener" href="https://tttang.com/archive/1312/#toc_0x02-phpinfo">Docker PHP裸文件本地包含综述</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.leavesongs.com/PENETRATION/webshell-without-alphanum-advanced.html?page=1#reply-list">无字母数字webshell之提高篇</a></li>
+<li><a target="_blank" rel="noopener" href="https://tttang.com/archive/1384/#toc_tmp-files-after-deleted">hxp CTF 2021 - A New Novel LFI</a></li>
+<li><a target="_blank" rel="noopener" href="https://zeddyu.github.io/p/36c3-web-%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95/#references">Includer</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/yushuaigee/article/details/107883964">彻底弄懂 Linux 下的文件描述符（fd）</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.borry.org/article/http-chunked">HTTP分块传输编码</a></li>
+<li><a target="_blank" rel="noopener" href="https://qkxu.github.io/2022/03/16/systemd%E4%B9%8BPrivateTmp.html">systemd之PrivateTmp</a></li>
+</ul>
+<hr>
+
+<div class="article-footer fs14">
+    <section id="license">
+      <div class="header"><span>许可协议</span></div>
+      <div class="body"><p>本文采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">署名-非商业性使用-相同方式共享 4.0 国际</a> 许可协议，转载请注明出处。</p>
+</div>
+    </section>
+    </div>
+</article>
+<div class="related-wrap" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">较新文章</div><a href="/2025/07/11/%E6%8F%90%E6%9D%83/">提权</a></div><div class="item" id="next"><div class="note">较早文章</div><a href="/2025/06/18/%E5%88%A9%E7%94%A8%E7%BC%93%E5%AD%98%E8%BF%9B%E8%A1%8C%E6%94%BB%E5%87%BB/">利用缓存进行攻击</a></div></section></div>
+
+<div class="related-wrap" id="related-posts">
+    <section class='header'>
+      <div class='title cap theme'>您可能感兴趣的文章</div>
+    </section>
+    <section class='body'>
+    <div class="related-posts"><a class="item" href="\2025\06\18\利用缓存进行攻击\" title="利用缓存进行攻击"><span class="title">利用缓存进行攻击</span></a></div></section></div>
+
+
+
+
+<footer class="page-footer footnote"><hr><div class="text"><center>
+<span>
+© 2024
+<a style="font-weight: bold;  auto;" target="_blank" rel="noopener" href="https://github.com/AAAA-l">AAAAl</a>
+使用 <a style="font-weight: bold;  auto;" target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.29.1">Stellar1.29.1</a>
+创建
+</span>
+<br>
+<!--不蒜子计数器-->
+<script async="" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<!--添加一个访问量-->
+<span>总访问 <span id="busuanzi_value_site_pv" style="font-weight: bold;">113701</span> 次 | 本页访问 <span id="busuanzi_value_page_pv" style="font-weight: bold;">326</span> 次</span>
+</br>
+<span id="runtime_span"></span>
+
+<script type="text/javascript">
+  document.addEventListener('DOMContentLoaded', function() {
+    var runtime_span = document.getElementById('runtime_span');
+
+    function show_runtime() {
+      // 调用定时器
+      setTimeout(show_runtime, 1000);
+
+      var seconds = 1000;
+      var minutes = seconds * 60;
+      var hours = minutes * 60;
+      var days = hours * 24;
+      var years = days * 365;
+
+      var today = new Date();
+      var todayYear = today.getFullYear();
+      var todayMonth = today.getMonth();
+      var todayDate = today.getDate();
+      var todayHour = today.getHours();
+      var todayMinute = today.getMinutes();
+      var todaySecond = today.getSeconds();
+
+      var t1 = Date.UTC(2024, 11, 23, 0, 0, 0); // UTC时间，月份从0开始
+      var t2 = Date.UTC(todayYear, todayMonth, todayDate, todayHour, todayMinute, todaySecond);
+      var diff = t2 - t1;
+
+      var diffYears = Math.floor(diff / years);
+      var diffDays = Math.floor((diff / days) - diffYears * 365);
+      var diffHours = Math.floor((diff - (diffYears * 365 + diffDays) * days) / hours);
+      var diffMinutes = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours) / minutes);
+      var diffSeconds = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours - diffMinutes * minutes) / seconds);
+
+      // 更新显示时间的span元素内容
+      runtime_span.innerHTML = "🦉营业：" + diffYears + " 年 " + diffDays + " 天 " + diffHours + " 小时 " + diffMinutes + " 分钟 " + diffSeconds + " 秒🦉";
+    }
+
+    show_runtime(); // 初次调用函数以启动定时器
+  });
+</script>
+</center>
+</div></footer>
+<div class="main-mask" onclick="sidebar.dismiss()"></div></div><aside class="l_right">
+<div class="widgets">
+
+
+
+<widget class="widget-wrapper toc" id="data-toc" collapse="false"><div class="widget-header dis-select"><span class="name">本文目录</span><a class="cap-action" onclick="sidebar.toggleTOC()" ><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></a></div><div class="widget-body"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%B4%E6%97%B6%E6%96%87%E4%BB%B6"><span class="toc-text">临时文件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%B4%E6%97%B6%E6%96%87%E4%BB%B6%E7%9A%84%E4%BA%A7%E7%94%9F"><span class="toc-text">临时文件的产生</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%AD%E8%A8%80%E6%9C%AC%E8%BA%AB%E6%9C%BA%E5%88%B6"><span class="toc-text">语言本身机制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AC%AC%E4%B8%89%E6%96%B9%E6%9C%8D%E5%8A%A1"><span class="toc-text">第三方服务</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BA%94%E7%94%A8%E6%9C%AC%E8%BA%AB%E5%A4%84%E7%90%86%E9%80%BB%E8%BE%91"><span class="toc-text">应用本身处理逻辑</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#session%E4%BC%9A%E8%AF%9D"><span class="toc-text">session会话</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E4%B8%B4%E6%97%B6%E6%96%87%E4%BB%B6%E5%90%8D"><span class="toc-text">获取临时文件名</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%AF%E4%BB%A5%E9%A2%84%E6%B5%8B"><span class="toc-text">可以预测</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%8D%E5%8F%AF%E4%BB%A5%E9%A2%84%E6%B5%8B"><span class="toc-text">不可以预测</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2"><span class="toc-text">信息泄露</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%88%86%E7%A0%B4"><span class="toc-text">爆破</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%BC%93%E5%86%B2%E5%8C%BA%E6%BA%A2%E5%87%BA"><span class="toc-text">缓冲区溢出</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BB%B6%E9%95%BF%E4%B8%B4%E6%97%B6%E6%96%87%E4%BB%B6%E7%9A%84%E4%BF%9D%E5%AD%98%E6%97%B6%E9%97%B4"><span class="toc-text">延长临时文件的保存时间</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E5%90%8C%E4%B8%80%E4%B8%AA%E8%AF%B7%E6%B1%82%E5%8C%85"><span class="toc-text">使用同一个请求包</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BD%BF%E7%A8%8B%E5%BA%8F%E8%BF%90%E8%A1%8C%E9%94%99%E8%AF%AF"><span class="toc-text">使程序运行错误</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8http%E9%95%BF%E8%BF%9E%E6%8E%A5%E5%92%8C%E5%88%86%E5%9D%97%E4%BC%A0%E8%BE%93"><span class="toc-text">使用http长连接和分块传输</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A0%B9%E6%8D%AE%E5%BA%94%E7%94%A8%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%A4%84%E7%90%86%E6%96%B9%E5%BC%8F%E6%9B%B4%E6%94%B9%E6%95%B0%E6%8D%AE%E5%8C%85%E6%A0%BC%E5%BC%8F"><span class="toc-text">根据应用服务器处理方式更改数据包格式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B%E8%AE%BE%E7%BD%AE"><span class="toc-text">线程设置</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#linux%E4%B8%AD%E8%8E%B7%E5%8F%96%E6%96%87%E4%BB%B6%E5%86%85%E5%AE%B9%EF%BC%88%E8%A1%A5%E5%85%85%EF%BC%89"><span class="toc-text">linux中获取文件内容（补充）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-text">小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="toc-text">参考文章</span></a></li></ol></div><div class="widget-footer">
+
+<a class="top" onclick="util.scrollTop()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2c4.714 0 7.071 0 8.535 1.464C22 4.93 22 7.286 22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12Z"/><path stroke-linecap="round" stroke-linejoin="round" d="m9 15.5l3-3l3 3m-6-4l3-3l3 3"/></g></svg><span>回到顶部</span></a></div></widget>
+</div></aside><div class='float-panel blur'>
+  <button type='button' style='display:none' class='laptop-only rightbar-toggle mobile' onclick='sidebar.rightbar()'>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
+  </button>
+  <button type='button' style='display:none' class='mobile-only leftbar-toggle mobile' onclick='sidebar.leftbar()'>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 11c0-3.771 0-5.657 1.172-6.828C4.343 3 6.229 3 10 3h4c3.771 0 5.657 0 6.828 1.172C22 5.343 22 7.229 22 11v2c0 3.771 0 5.657-1.172 6.828C19.657 21 17.771 21 14 21h-4c-3.771 0-5.657 0-6.828-1.172C2 18.657 2 16.771 2 13z"/><path id="sep" stroke-linecap="round" d="M5.5 10h6m-5 4h4m4.5 7V3"/></g></svg>
+  </button>
+</div>
+</div><div class="scripts">
+<script type="text/javascript">
+  const ctx = {
+    date_suffix: {
+      just: `刚刚`,
+      min: `分钟前`,
+      hour: `小时前`,
+      day: `天前`,
+    },
+    root : `/`,
+  };
+
+  // required plugins (only load if needs)
+  if (`local_search`) {
+    ctx.search = {};
+    ctx.search.service = `local_search`;
+    if (ctx.search.service == 'local_search') {
+      let service_obj = Object.assign({}, `{"field":"all","path":"/search.json","content":true,"codeblock":false,"sort":"-date"}`);
+      ctx.search[ctx.search.service] = service_obj;
+    }
+  }
+  const def = {
+    avatar: `https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/3442075.svg`,
+    cover: `https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/cover/76b86c0226ffd.svg`,
+  };
+  const deps = {
+    jquery: `https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js`,
+    marked: `https://cdn.jsdelivr.net/npm/marked@13.0.1/lib/marked.umd.min.js`
+  }
+  
+
+</script>
+
+<script type="text/javascript">
+  const utils = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    css: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    js: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = ctx.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    jq: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        utils.js(deps.jquery).then(fn)
+      } else {
+        fn()
+      }
+    },
+    
+    onLoading: (el) => {
+      if (el) {
+        $(el).append('<div class="loading-wrap"><svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"><path stroke-dasharray="60" stroke-dashoffset="60" stroke-opacity=".3" d="M12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="1.3s" values="60;0"/></path><path stroke-dasharray="15" stroke-dashoffset="15" d="M12 3C16.9706 3 21 7.02944 21 12"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.3s" values="15;0"/><animateTransform attributeName="transform" dur="1.5s" repeatCount="indefinite" type="rotate" values="0 12 12;360 12 12"/></path></g></svg></div>');
+      }
+    },
+    onLoadSuccess: (el) => {
+      if (el) {
+        $(el).find('.loading-wrap').remove();
+      }
+    },
+    onLoadFailure: (el) => {
+      if (el) {
+        $(el).find('.loading-wrap svg').remove();
+        $(el).find('.loading-wrap').append('<svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path stroke-dasharray="60" stroke-dashoffset="60" d="M12 3L21 20H3L12 3Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.5s" values="60;0"/></path><path stroke-dasharray="6" stroke-dashoffset="6" d="M12 10V14"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.6s" dur="0.2s" values="6;0"/></path></g><circle cx="12" cy="17" r="1" fill="currentColor" fill-opacity="0"><animate fill="freeze" attributeName="fill-opacity" begin="0.8s" dur="0.4s" values="0;1"/></circle></svg>');
+        $(el).find('.loading-wrap').addClass('error');
+      }
+    },
+    request: (el, url, callback, onFailure) => {
+      let retryTimes = 3;
+      utils.onLoading(el);
+      function req() {
+        return new Promise((resolve, reject) => {
+          let status = 0; // 0 等待 1 完成 2 超时
+          let timer = setTimeout(() => {
+            if (status === 0) {
+              status = 2;
+              timer = null;
+              reject('请求超时');
+              if (retryTimes == 0) {
+                onFailure();
+              }
+            }
+          }, 5000);
+          fetch(url).then(function(response) {
+            if (status !== 2) {
+              clearTimeout(timer);
+              resolve(response);
+              timer = null;
+              status = 1;
+            }
+            if (response.ok) {
+              return response.json();
+            }
+            throw new Error('Network response was not ok.');
+          }).then(function(data) {
+            retryTimes = 0;
+            utils.onLoadSuccess(el);
+            callback(data);
+          }).catch(function(error) {
+            if (retryTimes > 0) {
+              retryTimes -= 1;
+              setTimeout(() => {
+                req();
+              }, 5000);
+            } else {
+              utils.onLoadFailure(el);
+              onFailure();
+            }
+          });
+        });
+      }
+      req();
+    },
+  };
+</script>
+
+<script>
+  const sidebar = {
+    leftbar: () => {
+      if (l_body) {
+        l_body.toggleAttribute('leftbar');
+        l_body.removeAttribute('rightbar');
+      }
+    },
+    rightbar: () => {
+      if (l_body) {
+        l_body.toggleAttribute('rightbar');
+        l_body.removeAttribute('leftbar');
+      }
+    },
+    dismiss: () => {
+      if (l_body) {
+        l_body.removeAttribute('leftbar');
+        l_body.removeAttribute('rightbar');
+      }
+    },
+    toggleTOC: () => {
+      document.querySelector('#data-toc').classList.toggle('collapse');
+    }
+  }
+</script>
+<script type="text/javascript">
+  (() => {
+    const tagSwitchers = document.querySelectorAll('.tag-subtree.parent-tag > a > .tag-switcher-wrapper')
+    for (const tagSwitcher of tagSwitchers) {
+      tagSwitcher.addEventListener('click', (e) => {
+        const parent = e.target.closest('.tag-subtree.parent-tag')
+        parent.classList.toggle('expanded')
+        e.preventDefault()
+      })
+    }
+
+    // Get active tag from query string, then activate it.
+    const urlParams = new URLSearchParams(window.location.search)
+    const activeTag = urlParams.get('tag')
+    if (activeTag) {
+      let tag = document.querySelector(`.tag-subtree[data-tag="${activeTag}"]`)
+      if (tag) {
+        tag.querySelector('a').classList.add('active')
+        
+        while (tag) {
+          tag.classList.add('expanded')
+          tag = tag.parentElement.closest('.tag-subtree.parent-tag')
+        }
+      }
+    }
+  })()
+</script>
+
+
+<!-- required -->
+<script src="/js/main.js?v=1.29.1" defer></script>
+
+<script type="text/javascript">
+  const applyTheme = (theme) => {
+    if (theme === 'auto') {
+      document.documentElement.removeAttribute('data-theme')
+    } else {
+      document.documentElement.setAttribute('data-theme', theme)
+    }
+
+    applyThemeToGiscus(theme)
+  }
+
+  const applyThemeToGiscus = (theme) => {
+    theme = theme === 'auto' ? 'preferred_color_scheme' : theme
+
+    const cmt = document.getElementById('giscus')
+    if (cmt) {
+      // This works before giscus load.
+      cmt.setAttribute('data-theme', theme)
+    }
+
+    const iframe = document.querySelector('#comments > section.giscus > iframe')
+    if (iframe) {
+      // This works after giscus loaded.
+      const src = iframe.src
+      const newSrc = src.replace(/theme=[\w]+/, `theme=${theme}`)
+      iframe.src = newSrc
+    }
+  }
+
+  const switchTheme = () => {
+    // light -> dark -> auto -> light -> ...
+    const currentTheme = document.documentElement.getAttribute('data-theme')
+    let newTheme;
+    switch (currentTheme) {
+      case 'light':
+        newTheme = 'dark'
+        break
+      case 'dark':
+        newTheme = 'auto'
+        break
+      default:
+        newTheme = 'light'
+    }
+    applyTheme(newTheme)
+    window.localStorage.setItem('Stellar.theme', newTheme)
+
+    const messages = {
+      light: `切换到浅色模式`,
+      dark: `切换到深色模式`,
+      auto: `切换到跟随系统配色`,
+    }
+    hud?.toast?.(messages[newTheme])
+  }
+
+  (() => {
+    // Apply user's preferred theme, if any.
+    const theme = window.localStorage.getItem('Stellar.theme')
+    if (theme !== null) {
+      applyTheme(theme)
+    }
+  })()
+</script>
+
+
+<!-- optional -->
+
+
+
+<script defer>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    ctx.services = Object.assign({}, JSON.parse(`{"mdrender":{"js":"/js/services/mdrender.js"},"siteinfo":{"js":"/js/services/siteinfo.js","api":null},"ghinfo":{"js":"/js/services/ghinfo.js"},"sites":{"js":"/js/services/sites.js"},"friends":{"js":"/js/services/friends.js"},"timeline":{"js":"/js/services/timeline.js"},"fcircle":{"js":"/js/services/fcircle.js"},"weibo":{"js":"/js/services/weibo.js"},"memos":{"js":"/js/services/memos.js"}}`));
+    for (let id of Object.keys(ctx.services)) {
+      const js = ctx.services[id].js;
+      if (id == 'siteinfo') {
+        ctx.cardlinks = document.querySelectorAll('a.link-card[cardlink]');
+        if (ctx.cardlinks?.length > 0) {
+          utils.js(js, { defer: true }).then(function () {
+            setCardLink(ctx.cardlinks);
+          });
+        }
+      } else {
+        const els = document.getElementsByClassName(`ds-${id}`);
+        if (els?.length > 0) {
+          utils.jq(() => {
+            if (id == 'timeline' || 'memos' || 'marked') {
+              utils.js(deps.marked).then(function () {
+                utils.js(js, { defer: true });
+              });
+            } else {
+              utils.js(js, { defer: true });
+            }
+          });
+        }
+      }
+    }
+  });
+</script>
+
+<script>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    ctx.search = {
+      path: `/search.json`,
+    }
+    utils.js('/js/search/local-search.js', { defer: true });
+  });
+</script><script>
+  window.FPConfig = {
+    delay: 0,
+    ignoreKeywords: [],
+    maxRPS: 5,
+    hoverDelay: 25
+  };
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/flying-pages@2/flying-pages.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@19.1.3/dist/lazyload.min.js"></script>
+<script>
+  // https://www.npmjs.com/package/vanilla-lazyload
+  // Set the options globally
+  // to make LazyLoad self-initialize
+  window.lazyLoadOptions = {
+    elements_selector: ".lazy",
+  };
+  // Listen to the initialization event
+  // and get the instance of LazyLoad
+  window.addEventListener(
+    "LazyLoad::Initialized",
+    function (event) {
+      window.lazyLoadInstance = event.detail.instance;
+    },
+    false
+  );
+  document.addEventListener('DOMContentLoaded', function () {
+    window.lazyLoadInstance?.update();
+  });
+</script><script>
+  ctx.fancybox = {
+    selector: `.timenode p>img`,
+    css: `https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css`,
+    js: `https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js`
+  };
+  var selector = '[data-fancybox]:not(.error)';
+  if (ctx.fancybox.selector) {
+    selector += `, ${ctx.fancybox.selector}`
+  }
+  var needFancybox = document.querySelectorAll(selector).length !== 0;
+  if (!needFancybox) {
+    const els = document.getElementsByClassName('ds-memos');
+    if (els != undefined && els.length > 0) {
+      needFancybox = true;
+    }
+  }
+  if (needFancybox) {
+    utils.css(ctx.fancybox.css);
+    utils.js(ctx.fancybox.js, { defer: true }).then(function () {
+      Fancybox.bind(selector, {
+        hideScrollbar: false,
+        Thumbs: {
+          autoStart: false,
+        },
+        caption: (fancybox, slide) => {
+          return slide.triggerEl.alt || slide.triggerEl.dataset.caption || null
+        }
+      });
+    })
+  }
+</script>
+<script>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    const swiper_api = document.getElementById('swiper-api');
+    if (swiper_api != undefined) {
+      utils.css(`https://unpkg.com/swiper@10.3.1/swiper-bundle.min.css`);
+      utils.js(`https://unpkg.com/swiper@10.3.1/swiper-bundle.min.js`, { defer: true }).then(function () {
+        const effect = swiper_api.getAttribute('effect') || '';
+        var swiper = new Swiper('.swiper#swiper-api', {
+          slidesPerView: 'auto',
+          spaceBetween: 8,
+          centeredSlides: true,
+          effect: effect,
+          rewind: true,
+          pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+          },
+          navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+          },
+        });
+      })
+    }
+  });
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    window.codeElements = document.querySelectorAll('.code');
+    if (window.codeElements.length > 0) {
+      ctx.copycode = {
+        default_text: `Copy`,
+        success_text: `Copied`,
+        toast: `复制成功`,
+      };
+      utils.js('/js/plugins/copycode.js');
+    }
+  });
+</script>
+
+
+<!-- inject -->
+
+</div></body></html>

@@ -1,0 +1,711 @@
+
+<!DOCTYPE html><html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.29.1" theme-name="Stellar" theme-version="1.29.1">
+  
+  <meta name="generator" content="Hexo 7.3.0">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000">
+  <meta name="theme-color" content="#f9fafb">
+  
+  <title>利用缓存进行攻击 - AAAAl'blog</title>
+
+  
+    <meta name="description" content="[TOC] 摘要在日常开发设计中，我们经常使用缓存来提高我们程序和服务器运行的效率，但是当程序存在安全问题的时候，缓存很有可能会帮助攻击者绕过我们的防御，这篇文章就是来总结一下缓存的各种利用，学习一下缓存的利用思路。 缓存fastjson中的缓存绕过在fastjson中为了提高json数据反序列化的效率，一个是会将一些经常使用的类缓存起来，还有一个就是会将程序当前运行中反序列化的类缓存起来。如下图">
+<meta property="og:type" content="article">
+<meta property="og:title" content="利用缓存进行攻击">
+<meta property="og:url" content="https://aaaa-l.github.io/2025/06/18/%E5%88%A9%E7%94%A8%E7%BC%93%E5%AD%98%E8%BF%9B%E8%A1%8C%E6%94%BB%E5%87%BB/">
+<meta property="og:site_name" content="AAAAl&#39;blog">
+<meta property="og:description" content="[TOC] 摘要在日常开发设计中，我们经常使用缓存来提高我们程序和服务器运行的效率，但是当程序存在安全问题的时候，缓存很有可能会帮助攻击者绕过我们的防御，这篇文章就是来总结一下缓存的各种利用，学习一下缓存的利用思路。 缓存fastjson中的缓存绕过在fastjson中为了提高json数据反序列化的效率，一个是会将一些经常使用的类缓存起来，还有一个就是会将程序当前运行中反序列化的类缓存起来。如下图">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://aaaa-l.github.io/%5C%E5%88%A9%E7%94%A8%E7%BC%93%E5%AD%98%E8%BF%9B%E8%A1%8C%E6%94%BB%E5%87%BB%5C1.jpg">
+<meta property="og:image" content="https://aaaa-l.github.io/%E5%88%A9%E7%94%A8%E7%BC%93%E5%AD%98%E8%BF%9B%E8%A1%8C%E6%94%BB%E5%87%BB/2.jpg">
+<meta property="article:published_time" content="2025-06-18T11:00:33.000Z">
+<meta property="article:modified_time" content="2025-07-05T01:39:13.086Z">
+<meta property="article:author" content="AAAAl">
+<meta property="article:tag" content="缓存">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://aaaa-l.github.io/%5C%E5%88%A9%E7%94%A8%E7%BC%93%E5%AD%98%E8%BF%9B%E8%A1%8C%E6%94%BB%E5%87%BB%5C1.jpg">
+  
+  
+  
+  <meta name="keywords" content="缓存">
+
+  <!-- feed -->
+  
+
+  <link rel="stylesheet" href="/css/main.css?v=1.29.1">
+
+  
+    <link rel="shortcut icon" href="/assets/images/avatar.jpg">
+  
+
+  
+    
+<link rel="stylesheet" href="https://gcore.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/atom-one-dark.min.css">
+
+  
+
+  
+</head>
+<body><div class="sitebg"><div class="siteblur"></div></div>
+
+<div class="l_body s:aa content tech" id="start" layout="post" ><aside class="l_left"><div class="leftbar-container">
+
+
+<header class="header"><div class="logo-wrap"><a class="avatar" href="/about/"><div class="bg" style="opacity:0;background-image:url(https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/rainbow64@3x.webp);"></div><img no-lazy class="avatar" src="/assets/images/avatar.jpg" onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="title" href="/"><div class="main" ff="title">AAAAl'blog</div></a></div></header>
+
+<div class="nav-area">
+<div class="search-wrapper" id="search-wrapper"><form class="search-form"><a class="search-button" onclick="document.getElementById(&quot;search-input&quot;).focus();"><svg t="1705074644177" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></a><input type="text" class="search-input" id="search-input" placeholder="站内搜索"></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div>
+
+
+<nav class="menu dis-select"><a class="nav-item" title="首页" href="/" style="color:#1BCDFC"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M5.879 2.879C5 3.757 5 5.172 5 8v8c0 2.828 0 4.243.879 5.121C6.757 22 8.172 22 11 22h2c2.828 0 4.243 0 5.121-.879C19 20.243 19 18.828 19 16V8c0-2.828 0-4.243-.879-5.121C17.243 2 15.828 2 13 2h-2c-2.828 0-4.243 0-5.121.879M8.25 17a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1-.75-.75M9 12.25a.75.75 0 0 0 0 1.5h6a.75.75 0 0 0 0-1.5zM8.25 9A.75.75 0 0 1 9 8.25h6a.75.75 0 0 1 0 1.5H9A.75.75 0 0 1 8.25 9" clip-rule="evenodd"/><path fill="currentColor" d="M5.235 4.058C5 4.941 5 6.177 5 8v8c0 1.823 0 3.058.235 3.942L5 19.924c-.975-.096-1.631-.313-2.121-.803C2 18.243 2 16.828 2 14v-4c0-2.829 0-4.243.879-5.121c.49-.49 1.146-.707 2.121-.803zm13.53 15.884C19 19.058 19 17.822 19 16V8c0-1.823 0-3.059-.235-3.942l.235.018c.975.096 1.631.313 2.121.803C22 5.757 22 7.17 22 9.999v4c0 2.83 0 4.243-.879 5.122c-.49.49-1.146.707-2.121.803z" opacity=".5"/></svg></a><a class="nav-item" title="分类" href="/categories/" style="color:#3DC550"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M14.25 4.48v3.057c0 .111 0 .27.02.406a.936.936 0 0 0 .445.683a.96.96 0 0 0 .783.072c.13-.04.272-.108.378-.159L17 8.005l1.124.534c.106.05.248.119.378.16a.958.958 0 0 0 .783-.073a.936.936 0 0 0 .444-.683c.021-.136.021-.295.021-.406V3.031c.113-.005.224-.01.332-.013C21.154 2.98 22 3.86 22 4.933v11.21c0 1.112-.906 2.01-2.015 2.08c-.97.06-2.108.179-2.985.41c-1.082.286-1.99 1.068-3.373 1.436c-.626.167-1.324.257-1.627.323V5.174c.32-.079 1.382-.203 1.674-.371c.184-.107.377-.216.576-.323m5.478 8.338a.75.75 0 0 1-.546.91l-4 1a.75.75 0 0 1-.364-1.456l4-1a.75.75 0 0 1 .91.546" clip-rule="evenodd"/><path fill="currentColor" d="M18.25 3.151c-.62.073-1.23.18-1.75.336a8.2 8.2 0 0 0-.75.27v3.182l.75-.356l.008-.005a1.13 1.13 0 0 1 .492-.13c.047 0 .094.004.138.01c.175.029.315.1.354.12l.009.005l.749.356V3.647z"/><path fill="currentColor" d="M12 5.214c-.334-.064-1.057-.161-1.718-.339C8.938 4.515 8.05 3.765 7 3.487c-.887-.234-2.041-.352-3.018-.412C2.886 3.007 2 3.9 2 4.998v11.146c0 1.11.906 2.01 2.015 2.079c.97.06 2.108.179 2.985.41c.486.129 1.216.431 1.873.726c1.005.451 2.052.797 3.127 1.034z" opacity=".5"/><path fill="currentColor" d="M4.273 12.818a.75.75 0 0 1 .91-.545l4 1a.75.75 0 1 1-.365 1.455l-4-1a.75.75 0 0 1-.545-.91m.909-4.545a.75.75 0 1 0-.364 1.455l4 1a.75.75 0 0 0 .364-1.455z"/></svg></a><a class="nav-item" title="关于" href="/about/" style="color:#FA6400"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M20 12a8 8 0 1 1-16 0a8 8 0 0 1 16 0" opacity=".5"/><path fill="currentColor" d="M17.712 5.453c1.047-.193 2.006-.259 2.797-.152c.77.103 1.536.393 1.956 1.064c.446.714.312 1.542-.012 2.258c-.33.728-.918 1.499-1.672 2.268c-1.516 1.547-3.836 3.226-6.597 4.697c-2.763 1.472-5.495 2.484-7.694 2.92c-1.095.217-2.098.299-2.923.201c-.8-.095-1.6-.383-2.032-1.075c-.47-.752-.296-1.63.07-2.379c.375-.768 1.032-1.586 1.872-2.403L4 12.416c0 .219.083.71.168 1.146c.045.23.09.444.123.596c-.652.666-1.098 1.263-1.339 1.756c-.277.567-.208.825-.145.925c.072.116.305.305.937.38c.609.073 1.44.018 2.455-.183c2.02-.4 4.613-1.351 7.28-2.772c2.667-1.42 4.85-3.015 6.23-4.423c.694-.707 1.15-1.334 1.377-1.836c.233-.515.167-.75.107-.844c-.07-.112-.289-.294-.883-.374c-.542-.072-1.272-.041-2.163.112L16.87 5.656c.338-.101.658-.17.842-.203"/></svg></a><a class="nav-item" title="更多" href="/more/" style="color:#F44336"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="m13.629 20.472l-.542.916c-.483.816-1.69.816-2.174 0l-.542-.916c-.42-.71-.63-1.066-.968-1.262c-.338-.197-.763-.204-1.613-.219c-1.256-.021-2.043-.098-2.703-.372a5 5 0 0 1-2.706-2.706C2 14.995 2 13.83 2 11.5v-1c0-3.273 0-4.91.737-6.112a5 5 0 0 1 1.65-1.651C5.59 2 7.228 2 10.5 2h3c3.273 0 4.91 0 6.113.737a5 5 0 0 1 1.65 1.65C22 5.59 22 7.228 22 10.5v1c0 2.33 0 3.495-.38 4.413a5 5 0 0 1-2.707 2.706c-.66.274-1.447.35-2.703.372c-.85.015-1.275.022-1.613.219c-.338.196-.548.551-.968 1.262" opacity=".5"/><path fill="currentColor" d="M10.99 14.308c-1.327-.978-3.49-2.84-3.49-4.593c0-2.677 2.475-3.677 4.5-1.609c2.025-2.068 4.5-1.068 4.5 1.609c0 1.752-2.163 3.615-3.49 4.593c-.454.335-.681.502-1.01.502c-.329 0-.556-.167-1.01-.502"/></svg></a></nav>
+</div>
+<div class="widgets">
+
+
+<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/2025/08/03/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/"><span class="title">内网穿透</span></a><a class="item title" href="/2025/07/30/Socket%E5%92%8CSOCKS%E4%BB%8B%E7%BB%8D/"><span class="title">Socket和SOCKS介绍</span></a><a class="item title" href="/2025/01/28/php-filter%E5%8D%8F%E8%AE%AE%E7%9A%84%E5%A6%99%E7%94%A8/"><span class="title">php://filter协议的妙用</span></a><a class="item title" href="/2025/06/28/%E4%B8%B4%E6%97%B6%E6%96%87%E4%BB%B6%E7%9A%84%E5%88%A9%E7%94%A8/"><span class="title">临时文件的利用</span></a><a class="item title" href="/2025/07/11/%E6%8F%90%E6%9D%83/"><span class="title">提权</span></a><a class="item title" href="/2025/06/18/%E5%88%A9%E7%94%A8%E7%BC%93%E5%AD%98%E8%BF%9B%E8%A1%8C%E6%94%BB%E5%87%BB/"><span class="title">利用缓存进行攻击</span></a><a class="item title" href="/2025/02/02/python%E4%B8%AD%E7%9A%84%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E5%87%BD%E6%95%B0/"><span class="title">python中的命令执行函数</span></a><a class="item title" href="/2024/12/30/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E6%97%A0%E5%9B%9E%E6%98%BE/"><span class="title">flask中的ssti注入-无回显</span></a><a class="item title" href="/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87/"><span class="title">flask中的ssti注入-绕过</span></a><a class="item title" href="/2024/12/23/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E5%89%8D%E7%BD%AE%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"><span class="title">flask中的ssti注入-前置基础知识</span></a></div></widget>
+</div>
+<footer class="footer dis-select"><div class="social-wrap"><a class="social" href="https://github.com/AAAA-l" target="_blank" rel="external nofollow noopener noreferrer"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/08a41b181ce68.svg"></a></div></footer>
+</div></aside><div class="l_main" id="main">
+
+
+
+
+
+<div class="article banner top"><img class="bg lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/assets/images/jndi.jpg">
+  <div class="content">
+    <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
+<span class="sep"></span><a class="cap breadcrumb" href="/">文章</a><span class="sep"></span><a class="cap breadcrumb-link" href="/categories/%E6%94%BB%E5%87%BB%E6%80%9D%E8%B7%AF/">攻击思路</a></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2025-06-18T11:00:33.000Z">2025-06-18</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2025-07-05T01:39:13.086Z">2025-07-05</time></span></div></div></div>
+    
+  </div>
+  </div><article class="md-text content"><p>[TOC]</p>
+<h6 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h6><p>在日常开发设计中，我们经常使用缓存来提高我们程序和服务器运行的效率，但是当程序存在安全问题的时候，缓存很有可能会帮助攻击者绕过我们的防御，这篇文章就是来总结一下缓存的各种利用，学习一下缓存的利用思路。</p>
+<h2 id="缓存"><a href="#缓存" class="headerlink" title="缓存"></a>缓存</h2><h3 id="fastjson中的缓存绕过"><a href="#fastjson中的缓存绕过" class="headerlink" title="fastjson中的缓存绕过"></a>fastjson中的缓存绕过</h3><p>在fastjson中为了提高json数据反序列化的效率，一个是会将一些经常使用的类缓存起来，还有一个就是会将程序当前运行中反序列化的类缓存起来。如下图：</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/%5C%E5%88%A9%E7%94%A8%E7%BC%93%E5%AD%98%E8%BF%9B%E8%A1%8C%E6%94%BB%E5%87%BB%5C1.jpg" alt="1"></p>
+<p>fastjson的这个缓存机制设置得很早。第一个缓存导致了<code>fastjson1.2.47</code>的绕过；第二个缓存则是导致了<code>fastjson1.2.68</code>和<code>fastjson1.2.80</code>的绕过，不过前者主要还是借助的<code>expectClass</code>，缓存并不是关键点。在fastjson中借助缓存机制，我们甚至不需要开启<code>autoType</code>。</p>
+<p>在fastjson的早期版本中能够利用缓存进行攻击关键有两点，一个是我们能够控制缓存内容；一个是在使用缓存机制时没有进行黑白名单检查。</p>
+<p>对于fastjson中第一个缓存绕过的修复就是不让我们能够修改缓存内容，这个也符合开发的原则，因为一些经常使用的类设计人员已经添加进去，对于我们使用人员来说这个应该是透明的，不应该存在着控制路径；而第二个缓存修复，因为涉及到在运行时的动态添加，不可能一棒子打死，完全不让使用缓存，所以这里是通过添加黑名单检查来避免恶意缓存的添加。</p>
+<p>通过上面的案例分析，我们可以知道在进行漏洞挖掘时，如果关键利用被黑白名单或者其他机制所限制，我们可以检查是否有缓存可以利用，然后再观察缓存中的内容是否可控，在对缓存内容进行控制的过程中是否存在安全检查。在观察之前，我们可以先分析是动态缓存还是静态缓存，静态缓存的内容一般不可控。</p>
+<h3 id="使用缓存绕过webShell检测"><a href="#使用缓存绕过webShell检测" class="headerlink" title="使用缓存绕过webShell检测"></a>使用缓存绕过webShell检测</h3><p>这里是参考了p神知识星球的一篇文章。我们先来看p神画的一个示意图，他说明了HIDS（基于主机的入侵检测系统）中，一个Web文件的整个数据轮转过程：</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/./%E5%88%A9%E7%94%A8%E7%BC%93%E5%AD%98%E8%BF%9B%E8%A1%8C%E6%94%BB%E5%87%BB/2.jpg"></p>
+<p>可以看到这里为了缓解资源压力，对于已经检测过的文件，会缓存检测结果，下次就不再检测。所以我们的目标就是将一个恶意文件缓存成一个正常文件。</p>
+<p>第一种思路是利用脚本类型的混淆。例如，在一个名为 <code>1.jsp</code> 的文件中写入 PHP webshell，HIDS 会根据文件后缀将其交给 JSP 检测引擎进行分析。由于文件内容并不包含 JSP 代码，检测引擎会认为这是一个正常文件，并根据内容生成哈希数据进行缓存。这样，下次如果上传一个内容相同的 PHP webshell 文件，就可能因为缓存命中而绕过检测机制。</p>
+<p>如果开发者意识到这个问题，在计算文件缓存时将文件名也纳入缓存键（如 <code>cache_key = filename + md5(content)</code>），那么仅更换文件后缀将无法命中缓存。此时，可以采用第二种思路——利用哈希碰撞。具体做法是，生成一个正常文件和一个 webshell 文件，使它们的内容哈希值完全相同，并且文件名一致，这样依然可以命中同一个缓存，从而绕过检测。</p>
+<p>如何生成两个hash相同的文件？可以参考下这个repo：<a target="_blank" rel="noopener" href="https://github.com/corkami/collisions%E3%80%82">https://github.com/corkami/collisions。</a></p>
+<p>针对上面第二种思路的绕过，我们其实不要采用md5算法，采用一个更加安全的哈希算法即可。如，SHA-512。</p>
+<h3 id="DNS缓存投毒"><a href="#DNS缓存投毒" class="headerlink" title="DNS缓存投毒"></a>DNS缓存投毒</h3><p>我们知道<code>dns</code>是应用层的服务，是使用来将域名解析为对应的ip地址的，使用域名的目的是为了方便人们记忆。</p>
+<p>在使用 DNS 服务时，客户端通常会先向本地域名服务器发起解析请求。如果本地没有缓存记录，服务器会通过递归或迭代的方式，依次向根域名服务器、顶级域名服务器等上级服务器查询，直到获得结果。为提高解析效率，查询到的域名与 IP 映射会被缓存，并设置 TTL（生存时间）以控制缓存的有效期，避免因域名与 IP 关系变化导致解析错误。</p>
+<p>DNS缓存投毒是向DNS服务器发送恶意DNS响应，使其缓存错误的解析结果。在缓存有效期内，所有通过被投毒DNS服务器查询该域名的用户都会获得攻击者指定的恶意IP。攻击者可利用此手段引导用户访问钓鱼网站，或将恶意IP设置为内网地址，从而绕过SSRF的黑名单过滤等安全机制，也可以将流量引导到攻击者控制的主机，实现数据窃取，会话劫持。</p>
+<p>更高级的攻击则突破了TTL限制：攻击者构造随机子域名（如“12345.example.com”）发起查询，因该子域名不存在于权威服务器，本地DNS服务器需向根服务器迭代查询。此时，攻击者抢先发送伪造响应，将顶级域名“example.com”的NS记录篡改为自身控制的IP。一旦成功，所有对“example.com”的查询都将被重定向，攻击范围呈指数级扩大。</p>
+<p>DNS基本没有什么认证机制，这点和缓存机制构成了我们可以实现DNS缓存投毒的核心，这个和上面fastjson其实是一样的。DNS查询响应包仅通过16位事务ID和源端口进行校验，攻击者可通过暴力猜测生成伪造包。若伪造包在合法响应前到达，且事务ID与端口匹配，DNS服务器便会将恶意记录存入缓存。一旦投毒成功，我们攻击范围会变大，可以利用的手段也会得到扩展。</p>
+<p>当然，在我看来DNS缓存投毒也存在一定局限性。一方面，如果用户浏览器或操作系统已缓存了域名解析结果，就不会再次向DNS服务器查询，投毒无效；另一方面，TTL到期后缓存失效，攻击效果有限。此外，攻击者还需确保伪造的DNS响应先于合法响应到达目标，否则投毒不会成功。</p>
+<p>这种攻击本质上是一种对信任链的破坏，也是一种中间人攻击，在进行渗透测试时，我们应该关注所有信任链，缓存和中间服务的安全性，寻找可被利用的薄弱点。</p>
+<h3 id="web缓存投毒"><a href="#web缓存投毒" class="headerlink" title="web缓存投毒"></a>web缓存投毒</h3><p>Web缓存就是服务器会先将之前没见过的请求对应的响应缓存下来，然后当有认为是相同请求的时候直接将缓存发给用户，这样可以减轻服务器的负荷。但是服务器端在识别的时候是根据特征来的，如果两个请求的特征相同即会认为是相同的请求，此时如果攻击者首先触发服务器缓存附有恶意payload的响应，当其他用户发送相同请求时即会接收到这个恶意的响应。从影响范围来看，一旦成功缓存被投毒的响应，会影响到大量的用户，比起以往某些只能针对某个用户发起的攻击，危害大很多很多。</p>
+<p>通常，服务器只会对静态资源进行缓存。但如果服务器和后端对路径的解析方式不一致，也可能导致动态资源被缓存。例如，后端使用通配符 <code>/user/*</code> 处理所有 <code>/user/</code> 路径下的请求，而服务器则根据文件后缀判断是否为静态资源，如将 <code>/user/content.css</code> 误认为静态文件并进行缓存。</p>
+<p>这个问题本身危害有限，通常只会导致 XSS 攻击，因为请求参数一般不会被缓存，缓存特征主要是根据请求行来确定的。我们也可以进行进行其他攻击，例如可以被用于拒绝服务攻击（DoS）：攻击者可以故意发送错误请求，导致服务器返回 400 响应，缓存服务器将该错误响应缓存后，其他用户访问时只能获取到 400 页面，影响正常业务办理。攻击者还可以在缓存即将过期时再次发送错误请求，持续保持错误结果被缓存，从而造成更长时间的业务不可用。</p>
+<h3 id="Opcache缓存利用"><a href="#Opcache缓存利用" class="headerlink" title="Opcache缓存利用"></a>Opcache缓存利用</h3><p>这个也算是php中经典的缓存利用了，在配合文件上传等漏洞会直接导致rce。<strong>OPcache</strong>（Optimized Cache）本质上是一个 <strong>字节码缓存机制</strong>，旨在提高 PHP 脚本执行的效率。它通过将 PHP 代码编译成字节码后存储在内存中和缓存在特定目录中（在php.ini中指定），避免了每次请求都需要重新编译 PHP 脚本的过程，从而大大提高了执行效率。</p>
+<p>如果存在文件上传的话，我们就可以上传恶意的字节码文件，再访问对应的资源路径。和一般的文件上传相比，一个是我们可以绕过对方对上传目录的限制，一般缓存文件目录和web根目录是不一样的；另一个我们也可以绕过一些路径检测，因为我们访问的就是他真实存在的路径。</p>
+<p>利用 OPcache 缓存时需注意两点：  一个是 <code>php.ini</code> 中的 <code>opcache.file_cache_only</code> 通常为 0，此时内存缓存优先，恶意代码难以加载，可尝试让目标服务器重启以清空内存缓存；  另一个是 OPcache 缓存文件路径包含一个 md5 值，该值可通过 phpinfo 信息计算获得，因此还需具备读取 phpinfo 的能力或者能够读取配置文件。</p>
+<p>通常，我们通过检查文件的时间戳来防御 OPcache 缓存利用，但这种方法也存在被绕过的风险。如果目标使用了第三方 PHP 服务或框架，往往包含许多长期未变更的文件，攻击者可以轻松获取这些文件的时间戳并进行伪造。这样，就有可能覆盖这些老旧文件的缓存内容，实现恶意代码注入。</p>
+<h3 id="CVE-2023-32697——sqlite-jdbc-RCE"><a href="#CVE-2023-32697——sqlite-jdbc-RCE" class="headerlink" title="CVE-2023-32697——sqlite jdbc RCE"></a>CVE-2023-32697——sqlite jdbc RCE</h3><p>这里同样利用了缓存文件机制。通过控制 JDBC，可以远程下载文件并将其缓存到本地指定目录。由于缓存文件名是根据下载地址的 <code>hashCode()</code> 计算得出，因此文件名是可预测的。如果目标存在 SQL 注入漏洞，我们可以先利用 JDBC 下载恶意动态链接库文件到本地缓存，再通过 SQL 注入执行 <code>load_extension</code> 实现 RCE。不过，这种方式需要同时控制 JDBC 配置和 SQL 语句，实际利用难度较高，适用场景有限。</p>
+<p>后续的修复措施是将缓存文件名的生成方式从 <code>hashCode()</code> 改为 <code>randomUUID()</code>，使缓存文件名变得不可预测。这提醒我们，在设计文件缓存机制时，应避免使用可预测的命名方式，以防被攻击者利用。对于攻击者来说，文件名不可预测就成为缓存利用时难以绕过的障碍。当然，实际攻击中，很多缓存利用的关键点并不在于机制本身，而在于信息泄露或文件读取等漏洞，正是这些漏洞让攻击者能够获取到缓存路径或文件名，从而实现进一步利用。</p>
+<h3 id="redis缓存攻击（CVE-2025-21605）"><a href="#redis缓存攻击（CVE-2025-21605）" class="headerlink" title="redis缓存攻击（CVE-2025-21605）"></a>redis缓存攻击（CVE-2025-21605）</h3><p>Redis  是一个开源的高性能内存数据存储系统，通常被用作数据库、缓存和消息代理。它支持多种数据结构，包括字符串、哈希、列表、集合、有序集合等。由于  Redis 完全基于内存操作，读写速度非常快，通常用于需要高速访问的应用场景，如实时分析、缓存、会话存储等。</p>
+<p>Redis 通常部署在内网，且常以 root 权限运行，并具备写文件能力，因此在内网渗透中是重点关注目标。不过，这类利用方式与我们接下来要讨论的缓存攻击并无直接关联。</p>
+<p>Redis 缓存攻击主要体现在 <strong>DDoS</strong> 相关场景，常见问题包括缓存穿透、缓存击穿和缓存雪崩。</p>
+<ul>
+<li><strong>缓存穿透</strong>：指缓存和数据库中都没有的数据被频繁请求。由于缓存通常采用被动写入策略，且为避免误缓存不存在的数据，从数据库查不到时不会写入缓存，导致每次请求都要访问数据库，失去了缓存的意义。在高并发或恶意请求下，数据库可能因此被拖垮。</li>
+<li><strong>缓存击穿</strong>：指某个热点数据在缓存过期后，短时间内有大量并发请求同时访问该数据。由于缓存失效，所有请求都会直接访问数据库，造成数据库压力骤增。</li>
+<li><strong>缓存雪崩</strong>：指大量缓存数据在同一时间集中过期，导致大量请求直接落到数据库，可能引发数据库宕机。与缓存击穿不同，雪崩是大量不同数据同时失效，而击穿通常是单一热点数据失效。</li>
+<li><strong>缓存污染</strong>：指程序处理逻辑存在错误，导致数据库中的数据和缓存数据不一致。</li>
+</ul>
+<p>这些问题并非 Redis 本身的漏洞，而是所有缓存系统普遍面临的挑战。合理设计缓存策略和防护机制，才能有效应对这些风险。</p>
+<p>最近redis还曝出了一个缓存漏洞——<strong>CVE-2025-21605</strong>。</p>
+<p>这个漏洞的根源，在于Redis输出缓冲区管理的设计存在问题。默认情况下，Redis有个叫client-output-buffer-limit的配置，它对普通客户端的输出缓冲区没有设置限制。这就好比给一个容器没有设定容量上限，东西可以无节制地往里装。</p>
+<p>在实际运行中，这会导致输出缓冲区持续增大，直至把系统所有的可用内存都消耗殆尽。更要命的是，利用这个漏洞，攻击者根本不需要进行身份验证。哪怕Redis服务器设置了密码保护，攻击者只要发送不包含密码的请求，就能触发漏洞。每次身份验证失败，服务器都会返回“NOAUTH”响应，这些响应会在输出缓冲区不断堆积，越来越多，最后把内存撑爆，导致服务器崩溃或者无法正常提供服务，也就是所谓的拒绝服务（DDoS）。</p>
+<p>缓存机制本身能提升系统抗压能力，但只有合理配置和防护，才能真正发挥作用。配置不当或存在设计缺陷时，反而可能被攻击者利用，带来更大的安全隐患。这也为漏洞挖掘提供了新的思路。以往我们更多关注利用缓存机制进行权限或安全绕过，但如果能够确定目标使用了特定的缓存机制，也可以进一步排查是否存在类似 <strong>CVE-2025-21605</strong> 这样的漏洞，从而实现 DDoS 等攻击。</p>
+<h3 id="Tomcat-CVE-2024-50379-CVE-2024-56337"><a href="#Tomcat-CVE-2024-50379-CVE-2024-56337" class="headerlink" title="Tomcat CVE-2024-50379 &#x2F; CVE-2024-56337"></a>Tomcat CVE-2024-50379 &#x2F; CVE-2024-56337</h3><p>这两个漏洞本质上是一个漏洞，只是 CVE-2024-50379 没有修复完全，CVE-2024-56337 做了二次修复。这里其实还结合了<code>Tomcat PUT方法任意写文件漏洞（CVE-2017-12615）</code>，也就是Tomcat要配置了可写（readonly&#x3D;false），这样我们就可以通过PUT请求方式往服务器写文件。</p>
+<p>本来是想要讲解得详细一点的，但是确实是才疏学浅，写得越多反而越乱，写得少很多细节又不能够讲清楚。所以这里还是推荐去看一下<a target="_blank" rel="noopener" href="https://xz.aliyun.com/news/16337">先知上面的原理讲解</a>。</p>
+<p>看完后，我们可以发现就算对方没有配置<code>readonly=false</code>，但只要存在文件上传漏洞，而且对<code>jsp/jspx</code>等后缀存在检测，我们都可以借助这个方法进行绕过。当然，这里还要求tomcat要部署在对大小写不敏感的操作系统。</p>
+<p>整个利用过程其实并不复杂，但每个环节都缺一不可，单独一个点都无法形成漏洞利用。AI 很难自动发现这种漏洞。人工挖掘时，往往只能从某个细节入手，比如发现配置了 <code>readonly=false</code>，但修复后无法上传 jsp 文件，于是尝试用大小写绕过（如 <code>Jsp</code>），但发现 <code>Jsp</code> 也不会被解析。接下来就需要深入分析 Tomcat 对请求路径的处理流程，逐步排查和验证，看是否可以让<code>Jsp</code>也能够被解析。整个过程不仅考验分析能力和知识广度，也需要很强的耐心和心理承受力。很多时候，距离成功可能只差一步，也可能最终无法利用。</p>
+<h3 id="临时文件的利用"><a href="#临时文件的利用" class="headerlink" title="临时文件的利用"></a>临时文件的利用</h3><p>这一部分内容较多，后续我会单独写一篇文章详细介绍，这里先做简单说明。</p>
+<p>在缓存机制中，很多场景会使用临时文件来存储中间数据或交换数据。通常情况下，当缓冲区无法容纳全部数据时，程序会将部分数据写入临时文件。请求处理结束后，这些临时文件一般会被删除。</p>
+<p>临时文件利用有三个关键要点：</p>
+<ol>
+<li><strong>文件内容是否可控</strong>。</li>
+<li><strong>临时文件目录和文件名是否可知或可预测</strong>。</li>
+<li><strong>文件被彻底删除前是否可利用</strong>。</li>
+</ol>
+<p>针对临时文件的利用方式主要有两种：</p>
+<ul>
+<li>一种是直接写入 WebShell，然后通过访问或文件包含等方式执行恶意代码。</li>
+<li>另一种是写入辅助文件，供后续其他 payload 利用，尤其在目标环境无法出网时，这种方式可以实现更灵活的攻击链。</li>
+</ul>
+<p>临时文件通常存储在临时目录中，并且在落地后很快就会被删除，因此防御者往往容易忽视相关风险。在 CTF 比赛中，临时文件的利用是常见的考点，但在实际环境中，想要成功利用临时文件往往需要发送大数据包以触发临时文件的生成，随后还可能需要通过条件竞争来利用这些文件。在此过程中，还可能涉及对临时文件目录和文件名的爆破。由于整个利用链条较长，容易产生异常流量或操作，从而被目标系统的安全检测机制发现。</p>
+<h3 id="缓存机制导致的权限提升"><a href="#缓存机制导致的权限提升" class="headerlink" title="缓存机制导致的权限提升"></a>缓存机制导致的权限提升</h3><p>在开源机场管理平台 <code>v2board 1.6.1</code> 中存在一个提权漏洞。该版本引入了缓存机制：用户访问时，当前的 <code>Authorization</code> 头会被保存到 Redis 缓存中。后续请求如果携带的 <code>Authorization</code> 头在缓存中存在，则直接被认为是合法用户。然而，前台 API 和后台 API 共用了这一缓存机制，并且缓存的 key 相同。此外，后台 API 在读取缓存后，并未校验该缓存对应的用户是否具有管理员权限，最终导致普通用户可以通过构造请求实现权限提升。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>我们可以看到，缓存机制在为我们带来便利的同时，也引入了一些安全隐患。开发人员往往默认信任被缓存的数据，而这些数据在后续可能会被其他功能或模块访问。虽然大多数情况下这不会直接导致明显的安全问题，但如果与其他漏洞结合利用，就可能引发严重后果。因此，这类安全问题往往不易被发现。</p>
+<p>利用缓存机制的漏洞通常需要通过代码审计才能识别。首先，需要判断系统采用的是静态缓存还是动态缓存。动态缓存意味着用户有机会控制缓存内容，这会带来更高的风险。接下来，要检查缓存写入时是否对数据进行了充分的校验，尤其是在涉及权限、身份等敏感信息的场景。还要关注其他读取缓存数据的地方，分析是否存在信任缺失或权限绕过等问题。例如，前文提到的 v2board 漏洞，就是因为默认信任缓存数据，未对取出的数据进行权限校验，最终导致权限提升。这类审计对开发和安全人员的整体素养要求较高。</p>
+<p>缓存相关的安全问题有大有小，在真实环境中往往较难利用，尤其是在黑盒测试场景下，我们通常只能针对开源组件进行代码审计，寻找潜在漏洞。实际案例中，利用较多的是 Web 缓存投毒导致的敏感信息泄露或拒绝服务攻击，而像通过缓存临时文件进行利用的情况，在真实生产环境下则相对罕见。</p>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><hr>
+<hr>
+
+<div class="article-footer fs14">
+    <section id="license">
+      <div class="header"><span>许可协议</span></div>
+      <div class="body"><p>本文采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">署名-非商业性使用-相同方式共享 4.0 国际</a> 许可协议，转载请注明出处。</p>
+</div>
+    </section>
+    </div>
+</article>
+<div class="related-wrap" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">较新文章</div><a href="/2025/06/28/%E4%B8%B4%E6%97%B6%E6%96%87%E4%BB%B6%E7%9A%84%E5%88%A9%E7%94%A8/">临时文件的利用</a></div><div class="item" id="next"><div class="note">较早文章</div><a href="/2025/02/02/python%E4%B8%AD%E7%9A%84%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E5%87%BD%E6%95%B0/">python中的命令执行函数</a></div></section></div>
+
+<div class="related-wrap" id="related-posts">
+    <section class='header'>
+      <div class='title cap theme'>您可能感兴趣的文章</div>
+    </section>
+    <section class='body'>
+    <div class="related-posts"><a class="item" href="\2025\06\28\临时文件的利用\" title="临时文件的利用"><span class="title">临时文件的利用</span></a></div></section></div>
+
+
+
+
+<footer class="page-footer footnote"><hr><div class="text"><center>
+<span>
+© 2024
+<a style="font-weight: bold;  auto;" target="_blank" rel="noopener" href="https://github.com/AAAA-l">AAAAl</a>
+使用 <a style="font-weight: bold;  auto;" target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.29.1">Stellar1.29.1</a>
+创建
+</span>
+<br>
+<!--不蒜子计数器-->
+<script async="" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<!--添加一个访问量-->
+<span>总访问 <span id="busuanzi_value_site_pv" style="font-weight: bold;">113701</span> 次 | 本页访问 <span id="busuanzi_value_page_pv" style="font-weight: bold;">326</span> 次</span>
+</br>
+<span id="runtime_span"></span>
+
+<script type="text/javascript">
+  document.addEventListener('DOMContentLoaded', function() {
+    var runtime_span = document.getElementById('runtime_span');
+
+    function show_runtime() {
+      // 调用定时器
+      setTimeout(show_runtime, 1000);
+
+      var seconds = 1000;
+      var minutes = seconds * 60;
+      var hours = minutes * 60;
+      var days = hours * 24;
+      var years = days * 365;
+
+      var today = new Date();
+      var todayYear = today.getFullYear();
+      var todayMonth = today.getMonth();
+      var todayDate = today.getDate();
+      var todayHour = today.getHours();
+      var todayMinute = today.getMinutes();
+      var todaySecond = today.getSeconds();
+
+      var t1 = Date.UTC(2024, 11, 23, 0, 0, 0); // UTC时间，月份从0开始
+      var t2 = Date.UTC(todayYear, todayMonth, todayDate, todayHour, todayMinute, todaySecond);
+      var diff = t2 - t1;
+
+      var diffYears = Math.floor(diff / years);
+      var diffDays = Math.floor((diff / days) - diffYears * 365);
+      var diffHours = Math.floor((diff - (diffYears * 365 + diffDays) * days) / hours);
+      var diffMinutes = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours) / minutes);
+      var diffSeconds = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours - diffMinutes * minutes) / seconds);
+
+      // 更新显示时间的span元素内容
+      runtime_span.innerHTML = "🦉营业：" + diffYears + " 年 " + diffDays + " 天 " + diffHours + " 小时 " + diffMinutes + " 分钟 " + diffSeconds + " 秒🦉";
+    }
+
+    show_runtime(); // 初次调用函数以启动定时器
+  });
+</script>
+</center>
+</div></footer>
+<div class="main-mask" onclick="sidebar.dismiss()"></div></div><aside class="l_right">
+<div class="widgets">
+
+
+
+<widget class="widget-wrapper toc" id="data-toc" collapse="false"><div class="widget-header dis-select"><span class="name">本文目录</span><a class="cap-action" onclick="sidebar.toggleTOC()" ><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></a></div><div class="widget-body"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BC%93%E5%AD%98"><span class="toc-text">缓存</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#fastjson%E4%B8%AD%E7%9A%84%E7%BC%93%E5%AD%98%E7%BB%95%E8%BF%87"><span class="toc-text">fastjson中的缓存绕过</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E7%BC%93%E5%AD%98%E7%BB%95%E8%BF%87webShell%E6%A3%80%E6%B5%8B"><span class="toc-text">使用缓存绕过webShell检测</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DNS%E7%BC%93%E5%AD%98%E6%8A%95%E6%AF%92"><span class="toc-text">DNS缓存投毒</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#web%E7%BC%93%E5%AD%98%E6%8A%95%E6%AF%92"><span class="toc-text">web缓存投毒</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Opcache%E7%BC%93%E5%AD%98%E5%88%A9%E7%94%A8"><span class="toc-text">Opcache缓存利用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CVE-2023-32697%E2%80%94%E2%80%94sqlite-jdbc-RCE"><span class="toc-text">CVE-2023-32697——sqlite jdbc RCE</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#redis%E7%BC%93%E5%AD%98%E6%94%BB%E5%87%BB%EF%BC%88CVE-2025-21605%EF%BC%89"><span class="toc-text">redis缓存攻击（CVE-2025-21605）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tomcat-CVE-2024-50379-CVE-2024-56337"><span class="toc-text">Tomcat CVE-2024-50379 &#x2F; CVE-2024-56337</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%B4%E6%97%B6%E6%96%87%E4%BB%B6%E7%9A%84%E5%88%A9%E7%94%A8"><span class="toc-text">临时文件的利用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6%E5%AF%BC%E8%87%B4%E7%9A%84%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87"><span class="toc-text">缓存机制导致的权限提升</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-text">小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="toc-text">参考文章</span></a></li></ol></div><div class="widget-footer">
+
+<a class="top" onclick="util.scrollTop()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2c4.714 0 7.071 0 8.535 1.464C22 4.93 22 7.286 22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12Z"/><path stroke-linecap="round" stroke-linejoin="round" d="m9 15.5l3-3l3 3m-6-4l3-3l3 3"/></g></svg><span>回到顶部</span></a></div></widget>
+</div></aside><div class='float-panel blur'>
+  <button type='button' style='display:none' class='laptop-only rightbar-toggle mobile' onclick='sidebar.rightbar()'>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
+  </button>
+  <button type='button' style='display:none' class='mobile-only leftbar-toggle mobile' onclick='sidebar.leftbar()'>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 11c0-3.771 0-5.657 1.172-6.828C4.343 3 6.229 3 10 3h4c3.771 0 5.657 0 6.828 1.172C22 5.343 22 7.229 22 11v2c0 3.771 0 5.657-1.172 6.828C19.657 21 17.771 21 14 21h-4c-3.771 0-5.657 0-6.828-1.172C2 18.657 2 16.771 2 13z"/><path id="sep" stroke-linecap="round" d="M5.5 10h6m-5 4h4m4.5 7V3"/></g></svg>
+  </button>
+</div>
+</div><div class="scripts">
+<script type="text/javascript">
+  const ctx = {
+    date_suffix: {
+      just: `刚刚`,
+      min: `分钟前`,
+      hour: `小时前`,
+      day: `天前`,
+    },
+    root : `/`,
+  };
+
+  // required plugins (only load if needs)
+  if (`local_search`) {
+    ctx.search = {};
+    ctx.search.service = `local_search`;
+    if (ctx.search.service == 'local_search') {
+      let service_obj = Object.assign({}, `{"field":"all","path":"/search.json","content":true,"codeblock":false,"sort":"-date"}`);
+      ctx.search[ctx.search.service] = service_obj;
+    }
+  }
+  const def = {
+    avatar: `https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/3442075.svg`,
+    cover: `https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/cover/76b86c0226ffd.svg`,
+  };
+  const deps = {
+    jquery: `https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js`,
+    marked: `https://cdn.jsdelivr.net/npm/marked@13.0.1/lib/marked.umd.min.js`
+  }
+  
+
+</script>
+
+<script type="text/javascript">
+  const utils = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    css: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    js: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = ctx.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    jq: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        utils.js(deps.jquery).then(fn)
+      } else {
+        fn()
+      }
+    },
+    
+    onLoading: (el) => {
+      if (el) {
+        $(el).append('<div class="loading-wrap"><svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"><path stroke-dasharray="60" stroke-dashoffset="60" stroke-opacity=".3" d="M12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="1.3s" values="60;0"/></path><path stroke-dasharray="15" stroke-dashoffset="15" d="M12 3C16.9706 3 21 7.02944 21 12"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.3s" values="15;0"/><animateTransform attributeName="transform" dur="1.5s" repeatCount="indefinite" type="rotate" values="0 12 12;360 12 12"/></path></g></svg></div>');
+      }
+    },
+    onLoadSuccess: (el) => {
+      if (el) {
+        $(el).find('.loading-wrap').remove();
+      }
+    },
+    onLoadFailure: (el) => {
+      if (el) {
+        $(el).find('.loading-wrap svg').remove();
+        $(el).find('.loading-wrap').append('<svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path stroke-dasharray="60" stroke-dashoffset="60" d="M12 3L21 20H3L12 3Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.5s" values="60;0"/></path><path stroke-dasharray="6" stroke-dashoffset="6" d="M12 10V14"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.6s" dur="0.2s" values="6;0"/></path></g><circle cx="12" cy="17" r="1" fill="currentColor" fill-opacity="0"><animate fill="freeze" attributeName="fill-opacity" begin="0.8s" dur="0.4s" values="0;1"/></circle></svg>');
+        $(el).find('.loading-wrap').addClass('error');
+      }
+    },
+    request: (el, url, callback, onFailure) => {
+      let retryTimes = 3;
+      utils.onLoading(el);
+      function req() {
+        return new Promise((resolve, reject) => {
+          let status = 0; // 0 等待 1 完成 2 超时
+          let timer = setTimeout(() => {
+            if (status === 0) {
+              status = 2;
+              timer = null;
+              reject('请求超时');
+              if (retryTimes == 0) {
+                onFailure();
+              }
+            }
+          }, 5000);
+          fetch(url).then(function(response) {
+            if (status !== 2) {
+              clearTimeout(timer);
+              resolve(response);
+              timer = null;
+              status = 1;
+            }
+            if (response.ok) {
+              return response.json();
+            }
+            throw new Error('Network response was not ok.');
+          }).then(function(data) {
+            retryTimes = 0;
+            utils.onLoadSuccess(el);
+            callback(data);
+          }).catch(function(error) {
+            if (retryTimes > 0) {
+              retryTimes -= 1;
+              setTimeout(() => {
+                req();
+              }, 5000);
+            } else {
+              utils.onLoadFailure(el);
+              onFailure();
+            }
+          });
+        });
+      }
+      req();
+    },
+  };
+</script>
+
+<script>
+  const sidebar = {
+    leftbar: () => {
+      if (l_body) {
+        l_body.toggleAttribute('leftbar');
+        l_body.removeAttribute('rightbar');
+      }
+    },
+    rightbar: () => {
+      if (l_body) {
+        l_body.toggleAttribute('rightbar');
+        l_body.removeAttribute('leftbar');
+      }
+    },
+    dismiss: () => {
+      if (l_body) {
+        l_body.removeAttribute('leftbar');
+        l_body.removeAttribute('rightbar');
+      }
+    },
+    toggleTOC: () => {
+      document.querySelector('#data-toc').classList.toggle('collapse');
+    }
+  }
+</script>
+<script type="text/javascript">
+  (() => {
+    const tagSwitchers = document.querySelectorAll('.tag-subtree.parent-tag > a > .tag-switcher-wrapper')
+    for (const tagSwitcher of tagSwitchers) {
+      tagSwitcher.addEventListener('click', (e) => {
+        const parent = e.target.closest('.tag-subtree.parent-tag')
+        parent.classList.toggle('expanded')
+        e.preventDefault()
+      })
+    }
+
+    // Get active tag from query string, then activate it.
+    const urlParams = new URLSearchParams(window.location.search)
+    const activeTag = urlParams.get('tag')
+    if (activeTag) {
+      let tag = document.querySelector(`.tag-subtree[data-tag="${activeTag}"]`)
+      if (tag) {
+        tag.querySelector('a').classList.add('active')
+        
+        while (tag) {
+          tag.classList.add('expanded')
+          tag = tag.parentElement.closest('.tag-subtree.parent-tag')
+        }
+      }
+    }
+  })()
+</script>
+
+
+<!-- required -->
+<script src="/js/main.js?v=1.29.1" defer></script>
+
+<script type="text/javascript">
+  const applyTheme = (theme) => {
+    if (theme === 'auto') {
+      document.documentElement.removeAttribute('data-theme')
+    } else {
+      document.documentElement.setAttribute('data-theme', theme)
+    }
+
+    applyThemeToGiscus(theme)
+  }
+
+  const applyThemeToGiscus = (theme) => {
+    theme = theme === 'auto' ? 'preferred_color_scheme' : theme
+
+    const cmt = document.getElementById('giscus')
+    if (cmt) {
+      // This works before giscus load.
+      cmt.setAttribute('data-theme', theme)
+    }
+
+    const iframe = document.querySelector('#comments > section.giscus > iframe')
+    if (iframe) {
+      // This works after giscus loaded.
+      const src = iframe.src
+      const newSrc = src.replace(/theme=[\w]+/, `theme=${theme}`)
+      iframe.src = newSrc
+    }
+  }
+
+  const switchTheme = () => {
+    // light -> dark -> auto -> light -> ...
+    const currentTheme = document.documentElement.getAttribute('data-theme')
+    let newTheme;
+    switch (currentTheme) {
+      case 'light':
+        newTheme = 'dark'
+        break
+      case 'dark':
+        newTheme = 'auto'
+        break
+      default:
+        newTheme = 'light'
+    }
+    applyTheme(newTheme)
+    window.localStorage.setItem('Stellar.theme', newTheme)
+
+    const messages = {
+      light: `切换到浅色模式`,
+      dark: `切换到深色模式`,
+      auto: `切换到跟随系统配色`,
+    }
+    hud?.toast?.(messages[newTheme])
+  }
+
+  (() => {
+    // Apply user's preferred theme, if any.
+    const theme = window.localStorage.getItem('Stellar.theme')
+    if (theme !== null) {
+      applyTheme(theme)
+    }
+  })()
+</script>
+
+
+<!-- optional -->
+
+
+
+<script defer>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    ctx.services = Object.assign({}, JSON.parse(`{"mdrender":{"js":"/js/services/mdrender.js"},"siteinfo":{"js":"/js/services/siteinfo.js","api":null},"ghinfo":{"js":"/js/services/ghinfo.js"},"sites":{"js":"/js/services/sites.js"},"friends":{"js":"/js/services/friends.js"},"timeline":{"js":"/js/services/timeline.js"},"fcircle":{"js":"/js/services/fcircle.js"},"weibo":{"js":"/js/services/weibo.js"},"memos":{"js":"/js/services/memos.js"}}`));
+    for (let id of Object.keys(ctx.services)) {
+      const js = ctx.services[id].js;
+      if (id == 'siteinfo') {
+        ctx.cardlinks = document.querySelectorAll('a.link-card[cardlink]');
+        if (ctx.cardlinks?.length > 0) {
+          utils.js(js, { defer: true }).then(function () {
+            setCardLink(ctx.cardlinks);
+          });
+        }
+      } else {
+        const els = document.getElementsByClassName(`ds-${id}`);
+        if (els?.length > 0) {
+          utils.jq(() => {
+            if (id == 'timeline' || 'memos' || 'marked') {
+              utils.js(deps.marked).then(function () {
+                utils.js(js, { defer: true });
+              });
+            } else {
+              utils.js(js, { defer: true });
+            }
+          });
+        }
+      }
+    }
+  });
+</script>
+
+<script>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    ctx.search = {
+      path: `/search.json`,
+    }
+    utils.js('/js/search/local-search.js', { defer: true });
+  });
+</script><script>
+  window.FPConfig = {
+    delay: 0,
+    ignoreKeywords: [],
+    maxRPS: 5,
+    hoverDelay: 25
+  };
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/flying-pages@2/flying-pages.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@19.1.3/dist/lazyload.min.js"></script>
+<script>
+  // https://www.npmjs.com/package/vanilla-lazyload
+  // Set the options globally
+  // to make LazyLoad self-initialize
+  window.lazyLoadOptions = {
+    elements_selector: ".lazy",
+  };
+  // Listen to the initialization event
+  // and get the instance of LazyLoad
+  window.addEventListener(
+    "LazyLoad::Initialized",
+    function (event) {
+      window.lazyLoadInstance = event.detail.instance;
+    },
+    false
+  );
+  document.addEventListener('DOMContentLoaded', function () {
+    window.lazyLoadInstance?.update();
+  });
+</script><script>
+  ctx.fancybox = {
+    selector: `.timenode p>img`,
+    css: `https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css`,
+    js: `https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js`
+  };
+  var selector = '[data-fancybox]:not(.error)';
+  if (ctx.fancybox.selector) {
+    selector += `, ${ctx.fancybox.selector}`
+  }
+  var needFancybox = document.querySelectorAll(selector).length !== 0;
+  if (!needFancybox) {
+    const els = document.getElementsByClassName('ds-memos');
+    if (els != undefined && els.length > 0) {
+      needFancybox = true;
+    }
+  }
+  if (needFancybox) {
+    utils.css(ctx.fancybox.css);
+    utils.js(ctx.fancybox.js, { defer: true }).then(function () {
+      Fancybox.bind(selector, {
+        hideScrollbar: false,
+        Thumbs: {
+          autoStart: false,
+        },
+        caption: (fancybox, slide) => {
+          return slide.triggerEl.alt || slide.triggerEl.dataset.caption || null
+        }
+      });
+    })
+  }
+</script>
+<script>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    const swiper_api = document.getElementById('swiper-api');
+    if (swiper_api != undefined) {
+      utils.css(`https://unpkg.com/swiper@10.3.1/swiper-bundle.min.css`);
+      utils.js(`https://unpkg.com/swiper@10.3.1/swiper-bundle.min.js`, { defer: true }).then(function () {
+        const effect = swiper_api.getAttribute('effect') || '';
+        var swiper = new Swiper('.swiper#swiper-api', {
+          slidesPerView: 'auto',
+          spaceBetween: 8,
+          centeredSlides: true,
+          effect: effect,
+          rewind: true,
+          pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+          },
+          navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+          },
+        });
+      })
+    }
+  });
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    window.codeElements = document.querySelectorAll('.code');
+    if (window.codeElements.length > 0) {
+      ctx.copycode = {
+        default_text: `Copy`,
+        success_text: `Copied`,
+        toast: `复制成功`,
+      };
+      utils.js('/js/plugins/copycode.js');
+    }
+  });
+</script>
+
+
+<!-- inject -->
+
+</div></body></html>
